@@ -28,7 +28,7 @@ export async function signup(
   const { fullName, email, password, requestedRoles } = validatedFields.data;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -40,7 +40,16 @@ export async function signup(
     return { message: error.message };
   }
 
-  redirect("/check-email");
+  // If email confirmation is required, signUp() returns no session and the
+  // user needs to click the link we emailed them before they can log in.
+  // If confirmation is disabled (or already auto-confirmed), we get a real
+  // session back immediately — send them straight on instead of to a dead
+  // end telling them to check an email that already did its job.
+  if (!data.session) {
+    redirect("/check-email");
+  }
+
+  redirect("/pending-approval");
 }
 
 export async function login(
