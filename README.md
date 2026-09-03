@@ -21,8 +21,8 @@ phase).
 
 - [x] **Phase 0 — Scaffolding**: auth (signup/login/logout), admin-approval
       gate, role model (tutor/tutee/admin, additive), base UI shell.
-- [ ] **Phase 1 — MVP booking loop**: tutor availability, tutee calendar +
-      reservations, admin user approval UI.
+- [x] **Phase 1 — MVP booking loop**: tutor availability, tutee calendar +
+      reservations (race-safe, capacity lock/reopen), admin user approval UI.
 - [ ] **Phase 2 — Notifications**
 - [ ] **Phase 3 — Hours: confirmation, auto-logging, approval**
 - [ ] **Phase 4 — No-show & cancellation enforcement**
