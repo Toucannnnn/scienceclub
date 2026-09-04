@@ -71,6 +71,26 @@ export type CreateSlotFormState =
     }
   | undefined;
 
+export const GuestBookingFormSchema = z.object({
+  slotId: z.uuid({ error: "That slot link looks invalid." }),
+  name: z
+    .string()
+    .trim()
+    .min(2, { error: "Name must be at least 2 characters long." })
+    .max(200, { error: "Keep it under 200 characters." }),
+  email: z.email({ error: "Please enter a valid email." }).trim(),
+});
+
+export type GuestBookingFormState =
+  | {
+      errors?: {
+        name?: string[];
+        email?: string[];
+      };
+      message?: string;
+    }
+  | undefined;
+
 export const LoginFormSchema = z.object({
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: z.string().min(1, { error: "Password is required." }),

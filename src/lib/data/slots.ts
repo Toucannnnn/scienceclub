@@ -137,6 +137,39 @@ export async function getMyReservations(
   }));
 }
 
+export type SlotAttendee = {
+  reservationId: string;
+  status: ReservationStatus;
+  bookedAt: string;
+  displayName: string;
+  guestEmail: string | null;
+  isGuest: boolean;
+};
+
+/** Who's actually booked into a slot — name (and email, if a guest) for
+ * every reservation, any status. Only the slot's own tutor or an admin can
+ * call this (enforced in get_slot_attendees itself); RLS already lets a
+ * tutor SELECT their own slot's reservation rows, but not the account
+ * booker's profile row to resolve a name — that's what the RPC is for. */
+export async function getSlotAttendees(
+  supabase: SupabaseClient,
+  slotId: string
+): Promise<SlotAttendee[]> {
+  const { data, error } = await supabase.rpc("get_slot_attendees", {
+    p_slot_id: slotId,
+  });
+  if (error) throw error;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    reservationId: row.reservation_id,
+    status: row.status,
+    bookedAt: row.booked_at,
+    displayName: row.display_name,
+    guestEmail: row.guest_email,
+    isGuest: row.is_guest,
+  }));
+}
+
 export type ReferenceOption = { id: string; name: string };
 
 export async function getActiveSubjects(

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireApprovedProfile, hasRole } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
-import { getOwnSlots } from "@/lib/data/slots";
+import { getOwnSlots, getSlotAttendees, type SlotAttendee } from "@/lib/data/slots";
 import { formatSlotTimeRange } from "@/lib/format";
 import { ActionButton } from "@/components/action-button";
 import { cancelSlotAction } from "@/app/actions/slots";
@@ -43,6 +43,22 @@ export default async function AvailabilityPage() {
 
   const supabase = await createClient();
   const slots = await getOwnSlots(supabase, profile.id);
+
+  // Who's actually coming — name for every active booking, plus email for
+  // guest ones. Only fetched for slots with someone booked, to avoid an
+  // unnecessary RPC call per empty slot.
+  const attendeesBySlot = new Map<string, SlotAttendee[]>();
+  await Promise.all(
+    slots
+      .filter((slot) => slot.reserved_count > 0)
+      .map(async (slot) => {
+        const attendees = await getSlotAttendees(supabase, slot.id);
+        attendeesBySlot.set(
+          slot.id,
+          attendees.filter((a) => a.status === "booked")
+        );
+      })
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,6 +103,17 @@ export default async function AvailabilityPage() {
                 {slot.notes && (
                   <p className="mt-1 text-sm text-muted-foreground">
                     {slot.notes}
+                  </p>
+                )}
+                {(attendeesBySlot.get(slot.id)?.length ?? 0) > 0 && (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Booked:{" "}
+                    {attendeesBySlot
+                      .get(slot.id)!
+                      .map((a) =>
+                        a.isGuest ? `${a.displayName} (guest, ${a.guestEmail})` : a.displayName
+                      )
+                      .join(", ")}
                   </p>
                 )}
               </div>

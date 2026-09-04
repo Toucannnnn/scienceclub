@@ -39,7 +39,13 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const publicPaths = ["/login", "/signup", "/"];
-  const isPublicPath = publicPaths.includes(path);
+  // "/book" and everything under it (browsing, per-slot booking, the
+  // token-gated manage page) is the guest-booking flow — deliberately
+  // reachable with no session, unlike every other route.
+  const publicPrefixes = ["/book"];
+  const isPublicPath =
+    publicPaths.includes(path) ||
+    publicPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 
   if (!user && !isPublicPath) {
     const redirectUrl = new URL("/login", request.url);

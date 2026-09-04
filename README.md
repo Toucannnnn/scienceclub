@@ -30,6 +30,13 @@ phase).
 - [ ] **Phase 3 — Hours: confirmation, auto-logging, approval**
 - [ ] **Phase 4 — No-show & cancellation enforcement**
 - [ ] **Phase 5 — Full admin toolkit, reporting, polish**
+- [x] **Guest booking** (cross-cutting addition, not a numbered phase):
+      tutees can book with just a name + email — no account, no admin
+      approval. No login, ever; a tutee manages/cancels their booking via a
+      private link (a secret token) emailed to them instead. Tutors see a
+      guest's name and email alongside every regular booking on their
+      slots. Tutors/admins still sign up and get approved as before —
+      this only adds an alternate path for tutees. See `/book`.
 
 ## Structure
 

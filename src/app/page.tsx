@@ -21,6 +21,12 @@ export default function Home() {
           Log in
         </Link>
       </div>
+      <Link
+        href="/book"
+        className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+      >
+        Just need to book one session? Book as a guest — no account needed
+      </Link>
     </div>
   );
 }

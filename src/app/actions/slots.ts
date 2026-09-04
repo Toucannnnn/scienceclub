@@ -5,31 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireApprovedProfile, hasRole } from "@/lib/auth/dal";
 import { CreateSlotFormSchema, type CreateSlotFormState } from "@/lib/definitions";
-
-/** Maps a Postgres RPC error message (raised via `raise exception`) to a
- * friendly, user-facing one. Anything unrecognized falls back to a generic
- * message rather than leaking a raw error string. */
-function friendlyRpcError(message: string): string {
-  const known: Record<string, string> = {
-    slot_full: "That slot just filled up — someone booked it first.",
-    slot_not_open: "That slot is no longer open.",
-    slot_in_past: "That slot has already started.",
-    slot_not_found: "That slot no longer exists.",
-    cannot_book_own_slot: "You can't book your own availability slot.",
-    booking_restricted: "Your account is temporarily restricted from booking.",
-    not_approved: "Your account isn't approved yet.",
-    not_authorized: "You're not able to do that.",
-    reservation_not_found: "That reservation no longer exists.",
-    reservation_not_active: "That reservation isn't active anymore.",
-    capacity_out_of_range: "That capacity isn't allowed for this slot.",
-    capacity_below_current_bookings:
-      "Can't set capacity below the number of people already booked.",
-  };
-  for (const [code, friendly] of Object.entries(known)) {
-    if (message.includes(code)) return friendly;
-  }
-  return "Something went wrong. Please try again.";
-}
+import { friendlyRpcError } from "@/lib/rpc-errors";
 
 export async function createSlot(
   _state: CreateSlotFormState,
