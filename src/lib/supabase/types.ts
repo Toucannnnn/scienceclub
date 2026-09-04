@@ -1,12 +1,9 @@
-// Placeholder until generated from a real Supabase project.
+// Real schema types, generated from the live Supabase project with:
 //
-// Once `supabase/config.toml` points at your project (or you run Supabase
-// locally), regenerate this file with:
+//   npx supabase gen types typescript --project-id <your-project-ref> \
+//     > src/lib/supabase/types.generated.ts
 //
-//   npx supabase gen types typescript --project-id <your-project-ref> > src/lib/supabase/types.ts
-//
-// Using `Database = any` for now keeps the Supabase client usable without
-// blocking on that step; every `lib/data/*` wrapper should be updated to use
-// the generated row types once they exist.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Database = any;
+// Re-run that after every migration so this stays in step with the
+// database. This file is the stable import path the Supabase clients use;
+// types.generated.ts is the throwaway output.
+export type { Database, Json } from "./types.generated";

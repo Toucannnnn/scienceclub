@@ -19,19 +19,19 @@ type OutboxRow = {
 function wrapEmailHtml(bodyHtml: string, ctaHref: string) {
   return `<!doctype html>
 <html>
-  <body style="margin:0;padding:24px;background:#f4f4f5;font-family:system-ui,sans-serif;color:#18181b;">
-    <table role="presentation" width="100%" style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;">
+  <body style="margin:0;padding:24px;background:#f0f4f9;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:#202124;">
+    <table role="presentation" width="100%" style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:24px;overflow:hidden;">
       <tr>
-        <td style="padding:20px 24px;background:#18181b;color:#ffffff;font-weight:600;">
-          Science Peer Tutoring
+        <td style="padding:20px 24px;background:linear-gradient(100deg,#4285f4,#9b72cb 45%,#d96570);color:#ffffff;font-weight:600;font-size:16px;">
+          Science All Stars Tutoring
         </td>
       </tr>
       <tr>
         <td style="padding:24px;font-size:14px;line-height:1.6;">
           ${bodyHtml}
           <p style="margin-top:24px;">
-            <a href="${ctaHref}" style="display:inline-block;padding:8px 16px;background:#18181b;color:#ffffff;border-radius:8px;text-decoration:none;font-size:14px;">
-              Open Science Peer Tutoring
+            <a href="${ctaHref}" style="display:inline-block;padding:10px 20px;background:#1a73e8;color:#ffffff;border-radius:999px;text-decoration:none;font-size:14px;font-weight:500;">
+              Open Science All Stars Tutoring
             </a>
           </p>
         </td>

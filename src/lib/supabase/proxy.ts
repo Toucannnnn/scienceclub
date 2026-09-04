@@ -39,10 +39,10 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const publicPaths = ["/login", "/signup", "/"];
-  // "/book" and everything under it (browsing, per-slot booking, the
-  // token-gated manage page) is the guest-booking flow — deliberately
-  // reachable with no session, unlike every other route.
-  const publicPrefixes = ["/book"];
+  // The calendar and the booking flow under "/book" (per-slot booking, the
+  // token-gated manage page) are deliberately reachable with no session —
+  // browsing and booking never require an account. Everything else does.
+  const publicPrefixes = ["/calendar", "/book"];
   const isPublicPath =
     publicPaths.includes(path) ||
     publicPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));

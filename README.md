@@ -1,4 +1,4 @@
-# Science Peer Tutoring — Assigning System
+# Science All Stars Tutoring — Assigning System
 
 Scheduling, booking, and hour-tracking system for a science peer tutoring
 club. Tutors post availability, tutees book time slots off a calendar,
@@ -40,11 +40,20 @@ phase).
 
 ## Structure
 
-- `src/app/(auth)` — public auth pages (login, signup, pending-approval).
-- `src/app/(app)` — authenticated, approved-user pages (role-aware).
+- `src/app/(public)` — no account needed: landing page, the week calendar,
+  and the booking flow (`/book/[slotId]`, `/book/manage/[id]`).
+- `src/app/(auth)` — login, signup, pending-approval.
+- `src/app/(app)` — approved-member pages (dashboard, my bookings,
+  availability, admin), gated by `requireApprovedProfile()` in its layout.
 - `src/app/actions` — Server Actions (form mutations).
 - `src/app/api/cron/dispatch-notifications` — scheduled Route Handler that
   enqueues due session reminders and drains the email outbox (see SETUP.md).
+- `src/components/site-header.tsx` — one header for the whole site; adapts
+  to signed-out visitors and signed-in members.
+- `src/components/week-calendar.tsx` — the Google-Calendar-style week grid
+  (client component: all date math runs in the viewer's timezone).
 - `src/lib/auth/dal.ts` — the one place session/role checks happen.
 - `src/lib/supabase` — Supabase client setup (browser, server, proxy, admin).
+  `types.generated.ts` is generated from the live schema — regenerate it
+  after every migration (command at the top of `types.ts`).
 - `supabase/migrations` — database schema, applied with `supabase db push`.

@@ -1,15 +1,16 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Anon-facing counterpart to src/lib/data/slots.ts's getOpenSlots — backed
-// by the get_public_open_slot(s) RPCs (0005_guest_bookings.sql) rather
-// than a table select, since availability_slots' RLS requires is_approved()
-// and there's no policy letting anon resolve a tutor's profile name either.
-// Deliberately a narrower shape than OpenSlot: no tutor_id/status, a guest
-// doesn't need to know a slot's own id relative to anything, and every row
-// returned is implicitly "open".
+// Backs the public calendar and booking pages — the get_public_open_slot(s)
+// RPCs (0005_guest_bookings.sql, widened in 0007) rather than a table
+// select, since availability_slots' RLS requires is_approved() and there's
+// no policy letting anon resolve a tutor's profile name either. Granted to
+// both anon and authenticated, so this is the single slot source for
+// signed-out visitors and members alike. Every row returned is implicitly
+// "open", so there's no status field.
 
 export type PublicOpenSlot = {
   id: string;
+  tutor_id: string;
   starts_at: string;
   ends_at: string;
   capacity: number;
@@ -25,6 +26,7 @@ export type PublicOpenSlot = {
 function mapPublicSlotRow(row: any): PublicOpenSlot {
   return {
     id: row.id,
+    tutor_id: row.tutor_id,
     starts_at: row.starts_at,
     ends_at: row.ends_at,
     capacity: row.capacity,

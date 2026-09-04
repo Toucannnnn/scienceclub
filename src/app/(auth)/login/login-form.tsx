@@ -74,8 +74,8 @@ export function LoginForm() {
           </p>
           <p className="text-center text-sm text-muted-foreground">
             Just booking one session?{" "}
-            <Link href="/book" className="font-medium text-foreground underline">
-              Continue as a guest
+            <Link href="/calendar" className="font-medium text-foreground underline">
+              Book without an account
             </Link>
           </p>
         </CardFooter>

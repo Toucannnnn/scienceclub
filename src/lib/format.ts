@@ -16,6 +16,22 @@ export function formatSlotTimeRange(startsAt: string, endsAt: string) {
   return `${dateFormatter.format(start)} · ${timeFormatter.format(start)} – ${timeFormatter.format(end)}`;
 }
 
+/** Is this timestamp still in the future? Reads the clock, so it lives here
+ * rather than in a component body — same reason as getDefaultSlotWindow
+ * below: the "components must be pure" lint rule flags impure calls inside
+ * anything it recognizes as a component. */
+export function isUpcoming(isoString: string) {
+  return new Date(isoString).getTime() > Date.now();
+}
+
+/** Sort comparator for anything with a `starts_at`, soonest first. */
+export function byStartsAtAsc(
+  a: { starts_at: string },
+  b: { starts_at: string }
+) {
+  return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
+}
+
 /** A sensible starting point for a new slot's start/end time — an hour from
  * now, one hour long. Kept out of any component body: reading the current
  * time is impure, and the "components must be pure" lint rule flags that

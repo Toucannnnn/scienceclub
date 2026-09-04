@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Science Peer Tutoring",
-    default: "Science Peer Tutoring",
+    template: "%s | Science All Stars Tutoring",
+    default: "Science All Stars Tutoring",
   },
   description:
-    "Scheduling and hour tracking for the science peer tutoring club.",
+    "Free peer tutoring in science — browse the calendar and book a session in seconds, no account needed.",
 };
 
 export default function RootLayout({
@@ -30,11 +31,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // next-themes writes the theme class onto <html> before paint, which
+      // by definition won't match the server-rendered markup.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        {children}
-        <Toaster />
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
