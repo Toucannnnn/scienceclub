@@ -52,3 +52,43 @@ npm run dev
 ```
 
 Visit http://localhost:3000.
+
+## 6. Notifications (Phase 2)
+
+In-app notifications work with no extra setup. Emails need a bit more:
+
+1. Create a free [Resend](https://resend.com) account, verify a sending
+   domain (or use `onboarding@resend.dev` for local testing without a
+   verified domain), and grab an API key from **API Keys**.
+2. In your Supabase dashboard: **Project Settings -> API -> service_role**
+   — copy that key too. Treat it like a root password: it bypasses every
+   RLS policy in the database.
+3. Add to `.env.local` (see `.env.local.example` for the full list):
+   `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`,
+   `CRON_SECRET` (any random string — `openssl rand -hex 32`), and
+   `NEXT_PUBLIC_SITE_URL`.
+
+That covers emails triggered by an action someone takes in the app (booking,
+cancelling, admin approval) — those send as soon as the action runs. Session
+*reminders* and actually draining the send queue both need something to hit
+`/api/cron/dispatch-notifications` on a schedule, since nothing inside
+Postgres talks to the internet. Pick one:
+
+- **Vercel Cron** (if deploying there): add a `vercel.json` with a cron job
+  hitting that path every 10 minutes, and set the request's `Authorization`
+  header to `Bearer <CRON_SECRET>` (Vercel Cron can't set custom headers
+  itself — pass the secret as `?secret=<CRON_SECRET>` in the cron path
+  instead).
+- **A free external scheduler** (e.g. [cron-job.org](https://cron-job.org)):
+  point it at `https://your-domain/api/cron/dispatch-notifications` every
+  ~10 minutes with header `Authorization: Bearer <CRON_SECRET>`.
+- **Local testing**: call it yourself —
+  ```bash
+  curl -X POST "http://localhost:3000/api/cron/dispatch-notifications?secret=<CRON_SECRET>"
+  ```
+
+A ~10 minute cadence matters for reminders specifically: `enqueue_due_reminders()`
+only catches sessions starting 55–65 minutes out, so a much slower cron
+cadence can skip that window entirely. Booking/cancellation/approval emails
+aren't time-sensitive the same way — they just wait in the queue until the
+next run.

@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { requireApprovedProfile, hasRole } from "@/lib/auth/dal";
 import { logout } from "@/app/actions/auth";
+import { createClient } from "@/lib/supabase/server";
+import {
+  getRecentNotifications,
+  getUnreadNotificationCount,
+} from "@/lib/data/notifications";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { NotificationBell } from "@/components/notification-bell";
 
 export default async function AppLayout({
   children,
@@ -10,6 +16,11 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const profile = await requireApprovedProfile();
+  const supabase = await createClient();
+  const [notifications, unreadCount] = await Promise.all([
+    getRecentNotifications(supabase, profile.id),
+    getUnreadNotificationCount(supabase, profile.id),
+  ]);
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
@@ -42,6 +53,10 @@ export default async function AppLayout({
               <span className="hidden text-sm text-muted-foreground sm:inline">
                 {profile.fullName}
               </span>
+              <NotificationBell
+                initialNotifications={notifications}
+                initialUnreadCount={unreadCount}
+              />
               <form action={logout}>
                 <Button type="submit" variant="outline" size="sm">
                   Log out

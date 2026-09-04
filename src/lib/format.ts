@@ -26,6 +26,35 @@ export function getDefaultSlotWindow() {
   return { start, end };
 }
 
+const relativeTimeFormatter = new Intl.RelativeTimeFormat("en-US", {
+  numeric: "auto",
+});
+
+/** "3h ago" / "in 2 days" — coarse relative time for notification lists. */
+export function formatRelativeTime(isoString: string) {
+  const diffMs = new Date(isoString).getTime() - Date.now();
+  const diffMinutes = Math.round(diffMs / 60_000);
+
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [
+    ["year", 60 * 24 * 365],
+    ["month", 60 * 24 * 30],
+    ["week", 60 * 24 * 7],
+    ["day", 60 * 24],
+    ["hour", 60],
+    ["minute", 1],
+  ];
+
+  for (const [unit, minutesPerUnit] of units) {
+    if (Math.abs(diffMinutes) >= minutesPerUnit || unit === "minute") {
+      return relativeTimeFormatter.format(
+        Math.round(diffMinutes / minutesPerUnit),
+        unit
+      );
+    }
+  }
+  return relativeTimeFormatter.format(0, "minute");
+}
+
 /** Value usable in a <input type="datetime-local"> that round-trips through
  * `new Date(...)` — local time, no timezone suffix. */
 export function toDatetimeLocalValue(date: Date) {

@@ -23,7 +23,10 @@ phase).
       gate, role model (tutor/tutee/admin, additive), base UI shell.
 - [x] **Phase 1 — MVP booking loop**: tutor availability, tutee calendar +
       reservations (race-safe, capacity lock/reopen), admin user approval UI.
-- [ ] **Phase 2 — Notifications**
+- [x] **Phase 2 — Notifications**: in-app bell + read state, transactional
+      emails (booking confirmed/cancelled, slot cancelled, account approved)
+      and ~1hr-out session reminders, via an outbox drained by a scheduled
+      Route Handler.
 - [ ] **Phase 3 — Hours: confirmation, auto-logging, approval**
 - [ ] **Phase 4 — No-show & cancellation enforcement**
 - [ ] **Phase 5 — Full admin toolkit, reporting, polish**
@@ -33,6 +36,8 @@ phase).
 - `src/app/(auth)` — public auth pages (login, signup, pending-approval).
 - `src/app/(app)` — authenticated, approved-user pages (role-aware).
 - `src/app/actions` — Server Actions (form mutations).
+- `src/app/api/cron/dispatch-notifications` — scheduled Route Handler that
+  enqueues due session reminders and drains the email outbox (see SETUP.md).
 - `src/lib/auth/dal.ts` — the one place session/role checks happen.
-- `src/lib/supabase` — Supabase client setup (browser, server, proxy).
+- `src/lib/supabase` — Supabase client setup (browser, server, proxy, admin).
 - `supabase/migrations` — database schema, applied with `supabase db push`.
