@@ -18,10 +18,14 @@ export async function listUsers(
   let query = supabase
     .from("profiles")
     .select(
+      // user_roles points at profiles twice (user_id and granted_by), so the
+      // embed has to name the foreign key — without it PostgREST refuses the
+      // whole query with PGRST201 "more than one relationship was found".
+      // requested_roles has only the one FK, so it needs no hint.
       `
       id, full_name, email, status, created_at,
       requested_roles(role_code),
-      user_roles(role_code)
+      user_roles!user_roles_user_id_fkey(role_code)
     `
     )
     .order("created_at", { ascending: false });
