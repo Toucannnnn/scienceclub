@@ -23,7 +23,7 @@ function wrapEmailHtml(bodyHtml: string, ctaHref: string) {
     <table role="presentation" width="100%" style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:24px;overflow:hidden;">
       <tr>
         <td style="padding:20px 24px;background:linear-gradient(100deg,#4285f4,#9b72cb 45%,#d96570);color:#ffffff;font-weight:600;font-size:16px;">
-          Science All Stars Tutoring
+          Science All Stars
         </td>
       </tr>
       <tr>
@@ -31,7 +31,7 @@ function wrapEmailHtml(bodyHtml: string, ctaHref: string) {
           ${bodyHtml}
           <p style="margin-top:24px;">
             <a href="${ctaHref}" style="display:inline-block;padding:10px 20px;background:#1a73e8;color:#ffffff;border-radius:999px;text-decoration:none;font-size:14px;font-weight:500;">
-              Open Science All Stars Tutoring
+              Open Science All Stars
             </a>
           </p>
         </td>

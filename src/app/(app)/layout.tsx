@@ -1,5 +1,6 @@
 import { requireApprovedProfile } from "@/lib/auth/dal";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 /**
  * Members-only shell: dashboard, my bookings, availability, admin. The
@@ -20,6 +21,7 @@ export default async function AppLayout({
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
         {children}
       </main>
+      <SiteFooter />
     </div>
   );
 }

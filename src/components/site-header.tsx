@@ -23,6 +23,9 @@ export async function SiteHeader() {
   const isApproved = profile?.status === "approved";
 
   const navLinks = [
+    // Home and Calendar are the two pages anyone can reach without an
+    // account, so they lead for everyone; the rest appear once approved.
+    { href: "/", label: "Home" },
     { href: "/calendar", label: "Calendar" },
     ...(isApproved
       ? [
@@ -57,7 +60,7 @@ export async function SiteHeader() {
               <SparklesIcon className="size-4" />
             </span>
             <span className="font-semibold tracking-tight">
-              Science All Stars Tutoring
+              Science All Stars
             </span>
           </Link>
 

@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Science All Stars Tutoring",
-    default: "Science All Stars Tutoring",
+    template: "%s | Science All Stars",
+    default: "Science All Stars",
   },
   description:
     "Free peer tutoring in science — browse the calendar and book a session in seconds, no account needed.",

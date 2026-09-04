@@ -1,4 +1,4 @@
-# Science All Stars Tutoring — Assigning System
+# Science All Stars — Assigning System
 
 Scheduling, booking, and hour-tracking system for a science peer tutoring
 club. Tutors post availability, tutees book time slots off a calendar,

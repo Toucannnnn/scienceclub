@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   CalendarDaysIcon,
   MousePointerClickIcon,
@@ -39,12 +40,24 @@ export default async function LandingPage() {
       <section className="relative">
         <div className="spark-glow pointer-events-none absolute inset-x-0 -top-24 h-64" />
         <div className="relative flex flex-col items-center gap-6 text-center">
+          <div className="flex items-center gap-2 rounded-full border border-border/70 bg-card py-1.5 pr-4 pl-1.5 text-sm">
+            <Image
+              src="/liberty-logo.svg"
+              alt="Liberty High School"
+              width={28}
+              height={28}
+              className="size-7"
+            />
+            <span className="text-muted-foreground">
+              Liberty High School · Frisco, TX
+            </span>
+          </div>
           <h1 className="max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl">
             Free science tutoring,{" "}
             <span className="text-spark">booked in seconds</span>
           </h1>
           <p className="max-w-xl text-lg text-muted-foreground">
-            Science All Stars Tutoring pairs students with peer tutors for
+            Science All Stars pairs students with peer tutors for
             one-on-one help. Find a time on the calendar and book it — you
             don&apos;t even need an account.
           </p>

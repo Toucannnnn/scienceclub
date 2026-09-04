@@ -11,7 +11,7 @@ export default function AuthLayout({
         href="/"
         className="mb-8 text-lg font-semibold tracking-tight text-foreground"
       >
-        Science All Stars Tutoring
+        Science All Stars
       </Link>
       <div className="w-full max-w-sm">{children}</div>
     </div>
