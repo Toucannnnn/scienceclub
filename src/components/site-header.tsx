@@ -29,15 +29,15 @@ export async function SiteHeader() {
     { href: "/calendar", label: "Calendar" },
     ...(isApproved
       ? [
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/my-bookings", label: "My bookings" },
+          { href: "/dashboard", label: "General dashboard" },
+          { href: "/my-bookings", label: "Tutee bookings" },
         ]
       : []),
     ...(isApproved && hasRole(profile, "tutor")
-      ? [{ href: "/availability", label: "My availability" }]
+      ? [{ href: "/availability", label: "Tutor availability" }]
       : []),
     ...(isApproved && hasRole(profile, "admin")
-      ? [{ href: "/admin/users", label: "Manage users" }]
+      ? [{ href: "/admin/users", label: "Administration" }]
       : []),
   ];
 

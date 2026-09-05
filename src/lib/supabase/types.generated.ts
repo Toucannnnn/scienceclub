@@ -110,6 +110,41 @@ export type Database = {
           },
         ]
       }
+      courses: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          subject_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          subject_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          subject_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_outbox: {
         Row: {
           attempts: number
@@ -451,29 +486,86 @@ export type Database = {
         }
         Relationships: []
       }
-      tutor_subjects: {
+      teachers: {
         Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          room: string | null
           subject_id: string
-          tutor_id: string
+          weekdays: number[]
         }
         Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          room?: string | null
           subject_id: string
-          tutor_id: string
+          weekdays: number[]
         }
         Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          room?: string | null
           subject_id?: string
-          tutor_id?: string
+          weekdays?: number[]
         }
         Relationships: [
           {
-            foreignKeyName: "tutor_subjects_subject_id_fkey"
+            foreignKeyName: "teachers_subject_id_fkey"
             columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "subjects"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      tutor_courses: {
+        Row: {
+          course_id: string
+          decided_at: string | null
+          decided_by: string | null
+          requested_at: string
+          status: string
+          tutor_id: string
+        }
+        Insert: {
+          course_id: string
+          decided_at?: string | null
+          decided_by?: string | null
+          requested_at?: string
+          status?: string
+          tutor_id: string
+        }
+        Update: {
+          course_id?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          requested_at?: string
+          status?: string
+          tutor_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "tutor_subjects_tutor_id_fkey"
+            foreignKeyName: "tutor_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutor_courses_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutor_courses_tutor_id_fkey"
             columns: ["tutor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -599,6 +691,23 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      decide_tutor_course: {
+        Args: { p_approve: boolean; p_course_id: string; p_tutor_id: string }
+        Returns: {
+          course_id: string
+          decided_at: string | null
+          decided_by: string | null
+          requested_at: string
+          status: string
+          tutor_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutor_courses"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       enqueue_due_reminders: { Args: never; Returns: number }
       get_guest_reservation: {
         Args: { p_reservation_id: string; p_token: string }
@@ -610,6 +719,18 @@ export type Database = {
           starts_at: string
           status: string
           subject_name: string
+          tutor_name: string
+        }[]
+      }
+      get_pending_tutor_courses: {
+        Args: never
+        Returns: {
+          course_id: string
+          course_name: string
+          requested_at: string
+          subject_name: string
+          tutor_email: string
+          tutor_id: string
           tutor_name: string
         }[]
       }
@@ -716,6 +837,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      request_tutor_courses: {
+        Args: { p_course_ids: string[] }
+        Returns: number
+      }
       reserve_slot: {
         Args: { p_slot_id: string }
         Returns: {
@@ -791,6 +916,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      withdraw_tutor_course: {
+        Args: { p_course_id: string }
+        Returns: undefined
       }
     }
     Enums: {

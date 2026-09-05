@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireApprovedProfile, hasRole } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { getOwnSlots, getSlotAttendees, type SlotAttendee } from "@/lib/data/slots";
+import { getApprovedCourseNames } from "@/lib/data/courses";
 import { formatSlotTimeRange } from "@/lib/format";
 import { ActionButton } from "@/components/action-button";
 import { cancelSlotAction } from "@/app/actions/slots";
@@ -42,7 +43,10 @@ export default async function AvailabilityPage() {
   }
 
   const supabase = await createClient();
-  const slots = await getOwnSlots(supabase, profile.id);
+  const [slots, approvedCourses] = await Promise.all([
+    getOwnSlots(supabase, profile.id),
+    getApprovedCourseNames(supabase, profile.id),
+  ]);
 
   // Who's actually coming — name for every active booking, plus email for
   // guest ones. Only fetched for slots with someone booked, to avoid an
@@ -62,18 +66,28 @@ export default async function AvailabilityPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            My availability
+            Tutor availability
           </h1>
           <p className="text-muted-foreground">
-            Post time slots for tutees to book.
+            {approvedCourses.length === 0
+              ? "You're not approved for any courses yet — request approval before posting sessions."
+              : `You're approved to tutor: ${approvedCourses.join(", ")}.`}
           </p>
         </div>
-        <Link href="/availability/new" className={buttonVariants()}>
-          Post a slot
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/tutor/courses"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            My courses
+          </Link>
+          <Link href="/availability/new" className={buttonVariants()}>
+            Post a slot
+          </Link>
+        </div>
       </div>
 
       {slots.length === 0 && (

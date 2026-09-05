@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { listUsers } from "@/lib/data/admin";
+import { getPendingTutorCourses } from "@/lib/data/courses";
 import { ApproveUserForm } from "./approve-user-form";
 import { RoleToggles } from "./role-toggles";
+import { CourseDecisionButtons } from "./course-decision-buttons";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -19,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export const metadata = { title: "Manage users" };
+export const metadata = { title: "Administration" };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   pending: "secondary",
@@ -30,7 +32,10 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline" | "dest
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();
-  const users = await listUsers(supabase);
+  const [users, pendingCourses] = await Promise.all([
+    listUsers(supabase),
+    getPendingTutorCourses(supabase),
+  ]);
   const pending = users.filter((u) => u.status === "pending");
   const others = users.filter((u) => u.status !== "pending");
 
@@ -38,12 +43,53 @@ export default async function AdminUsersPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          Manage users
+          Administration
         </h1>
         <p className="text-muted-foreground">
-          Approve new signups, assign roles, and manage everyone else&apos;s.
+          Approve new signups, assign roles, and review what tutors are
+          cleared to teach.
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Tutor course approvals ({pendingCourses.length})
+          </CardTitle>
+          <CardDescription>
+            A tutor can only post sessions for courses approved here.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {pendingCourses.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No course requests waiting.
+            </p>
+          )}
+          {pendingCourses.map((request) => (
+            <div
+              key={`${request.tutorId}-${request.courseId}`}
+              className="flex flex-wrap items-center justify-between gap-3 border-b pb-3 last:border-0 last:pb-0"
+            >
+              <div>
+                <p className="font-medium">
+                  {request.tutorName}{" "}
+                  <span className="font-normal text-muted-foreground">
+                    · {request.courseName}
+                  </span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {request.tutorEmail} · {request.subjectName}
+                </p>
+              </div>
+              <CourseDecisionButtons
+                tutorId={request.tutorId}
+                courseId={request.courseId}
+              />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

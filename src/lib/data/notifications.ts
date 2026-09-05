@@ -1,12 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// notifications.type has no CHECK constraint in SQL, so this union is the
+// only thing keeping the set honest — add to it whenever a migration starts
+// emitting a new type.
 export type NotificationType =
   | "booking_confirmed"
   | "new_booking"
   | "booking_cancelled"
   | "slot_cancelled"
   | "account_approved"
-  | "session_reminder";
+  | "session_reminder"
+  | "course_approved"
+  | "course_rejected";
 
 export type AppNotification = {
   id: string;

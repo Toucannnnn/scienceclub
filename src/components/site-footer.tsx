@@ -38,6 +38,15 @@ export function SiteFooter() {
               Become a tutor
             </Link>
           </div>
+          <p className="text-xs">
+            Got an idea to make this better?{" "}
+            <a
+              href="mailto:yihan.tang.903@k12.friscoisd.org"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              yihan.tang.903@k12.friscoisd.org
+            </a>
+          </p>
         </div>
       </div>
     </footer>
