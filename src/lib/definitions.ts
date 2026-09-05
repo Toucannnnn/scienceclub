@@ -98,6 +98,33 @@ export type GuestBookingFormState =
     }
   | undefined;
 
+export const GuestRequestFormSchema = z.object({
+  courseId: z.uuid({ error: "Choose a course." }),
+  sessionDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Choose a date." }),
+  name: z
+    .string()
+    .trim()
+    .min(2, { error: "Name must be at least 2 characters long." })
+    .max(200, { error: "Keep it under 200 characters." }),
+  email: z.email({ error: "Please enter a valid email." }).trim(),
+  note: z.string().trim().max(500).optional().or(z.literal("")),
+});
+
+export type GuestRequestFormState =
+  | {
+      errors?: {
+        courseId?: string[];
+        sessionDate?: string[];
+        name?: string[];
+        email?: string[];
+        note?: string[];
+      };
+      message?: string;
+    }
+  | undefined;
+
 export const LoginFormSchema = z.object({
   email: z.email({ error: "Please enter a valid email." }).trim(),
   password: z.string().min(1, { error: "Password is required." }),

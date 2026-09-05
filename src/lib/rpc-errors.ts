@@ -36,6 +36,15 @@ export function friendlyRpcError(message: string): string {
     invalid_capacity: "Enter a number between 1 and 100.",
     invalid_capacity_mode: "Choose a valid capacity option.",
     invalid_help_mode: "Choose individual or group help.",
+    past_request_cutoff:
+      "Requests have to be in before 12:00 PM on the day of tutoring, so tutors get a heads-up.",
+    already_requested_that_day: "You already have a request for that day.",
+    request_not_found: "That request no longer exists.",
+    request_not_claimable: "That request can't be claimed right now.",
+    cannot_claim_own_request: "You can't claim your own request.",
+    too_late_to_claim: "That request is too old to claim now.",
+    too_late_to_cancel:
+      "Tutors can only back out up to the day before — talk to an admin.",
     invalid_guest_details: "Please enter a valid name and email.",
     invalid_guest_link:
       "This booking link isn't valid — check you copied the whole link from your email.",

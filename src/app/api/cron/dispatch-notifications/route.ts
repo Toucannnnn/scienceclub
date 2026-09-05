@@ -63,6 +63,20 @@ async function dispatch(request: NextRequest) {
     ""
   );
 
+  // Close the advance-signup window on any request whose noon cutoff has
+  // passed. This does NOT remove the request — it stays on the calendar as
+  // unclaimed so a tutor who turns up can still take it. It just tells the
+  // tutee to go to the teacher directly.
+  const { data: unclaimedCount, error: unclaimedError } = await supabase.rpc(
+    "mark_unclaimed_requests"
+  );
+  if (unclaimedError) {
+    return NextResponse.json(
+      { error: `mark_unclaimed_requests failed: ${unclaimedError.message}` },
+      { status: 500 }
+    );
+  }
+
   const { data: reminderCount, error: reminderError } = await supabase.rpc(
     "enqueue_due_reminders"
   );
@@ -134,6 +148,7 @@ async function dispatch(request: NextRequest) {
   }
 
   return NextResponse.json({
+    requestsMarkedUnclaimed: unclaimedCount ?? 0,
     remindersEnqueued: reminderCount ?? 0,
     processed: rows.length,
     sent,

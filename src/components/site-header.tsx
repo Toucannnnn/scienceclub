@@ -34,7 +34,10 @@ export async function SiteHeader() {
         ]
       : []),
     ...(isApproved && hasRole(profile, "tutor")
-      ? [{ href: "/availability", label: "Tutor availability" }]
+      ? [
+          { href: "/availability", label: "Tutor availability" },
+          { href: "/requests", label: "Requests" },
+        ]
       : []),
     ...(isApproved && hasRole(profile, "admin")
       ? [{ href: "/admin/users", label: "Administration" }]

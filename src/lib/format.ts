@@ -46,6 +46,17 @@ export function clubToday() {
   }).format(new Date());
 }
 
+const sessionDateFormatter = new Intl.DateTimeFormat("en-US", {
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+});
+
+/** "Wed, Sep 9" from a YYYY-MM-DD session date. */
+export function formatSessionDate(ymd: string) {
+  return sessionDateFormatter.format(parseSessionDate(ymd));
+}
+
 /** Parses a YYYY-MM-DD session date as *local midnight*. `new Date("2026-09-09")`
  * parses as UTC midnight, which in Central is the evening of Sep 8 — every
  * session would render a day early. Always use this for date-only strings. */

@@ -51,6 +51,7 @@ export type Database = {
           location_id: string
           max_capacity: number
           notes: string | null
+          origin_request_id: string | null
           session_date: string
           starts_at: string
           status: string
@@ -71,6 +72,7 @@ export type Database = {
           location_id: string
           max_capacity?: number
           notes?: string | null
+          origin_request_id?: string | null
           session_date: string
           starts_at: string
           status?: string
@@ -90,6 +92,7 @@ export type Database = {
           location_id?: string
           max_capacity?: number
           notes?: string | null
+          origin_request_id?: string | null
           session_date?: string
           starts_at?: string
           status?: string
@@ -111,6 +114,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_slots_origin_request_id_fkey"
+            columns: ["origin_request_id"]
+            isOneToOne: true
+            referencedRelation: "tutoring_requests"
             referencedColumns: ["id"]
           },
           {
@@ -642,6 +652,86 @@ export type Database = {
           },
         ]
       }
+      tutoring_requests: {
+        Row: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          guest_email: string | null
+          guest_manage_token: string | null
+          guest_name: string | null
+          id: string
+          note: string | null
+          requester_id: string | null
+          session_date: string
+          status: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          course_id: string
+          created_at?: string
+          guest_email?: string | null
+          guest_manage_token?: string | null
+          guest_name?: string | null
+          id?: string
+          note?: string | null
+          requester_id?: string | null
+          session_date: string
+          status?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          claimed_at?: string | null
+          claimed_by?: string | null
+          course_id?: string
+          created_at?: string
+          guest_email?: string | null
+          guest_manage_token?: string | null
+          guest_name?: string | null
+          id?: string
+          note?: string | null
+          requester_id?: string | null
+          session_date?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tutoring_requests_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutoring_requests_claimed_by_fkey"
+            columns: ["claimed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutoring_requests_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tutoring_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           granted_at: string
@@ -690,6 +780,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assert_request_allowed: {
+        Args: { p_course_id: string; p_date: string }
+        Returns: undefined
+      }
       cancel_reservation: {
         Args: { p_reservation_id: string }
         Returns: {
@@ -749,6 +843,86 @@ export type Database = {
           location_id: string
           max_capacity: number
           notes: string | null
+          origin_request_id: string | null
+          session_date: string
+          starts_at: string
+          status: string
+          subject_id: string | null
+          tutor_id: string
+          tutor_reminder_sent_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "availability_slots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_tutor_request: {
+        Args: { p_request_id: string }
+        Returns: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          guest_email: string | null
+          guest_manage_token: string | null
+          guest_name: string | null
+          id: string
+          note: string | null
+          requester_id: string | null
+          session_date: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutoring_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_tutor_request_as_guest: {
+        Args: { p_request_id: string; p_token: string }
+        Returns: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          guest_email: string | null
+          guest_manage_token: string | null
+          guest_name: string | null
+          id: string
+          note: string | null
+          requester_id: string | null
+          session_date: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutoring_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      claim_request: {
+        Args: { p_request_id: string }
+        Returns: {
+          capacity: number
+          capacity_mode: string
+          course_id: string | null
+          created_at: string
+          ends_at: string
+          help_mode: string
+          id: string
+          location_id: string
+          max_capacity: number
+          notes: string | null
+          origin_request_id: string | null
           session_date: string
           starts_at: string
           status: string
@@ -770,6 +944,7 @@ export type Database = {
         Args: { p_course_id: string; p_date: string }
         Returns: boolean
       }
+      course_teacher_name: { Args: { p_course_id: string }; Returns: string }
       create_slot: {
         Args: {
           p_capacity: number
@@ -790,6 +965,7 @@ export type Database = {
           location_id: string
           max_capacity: number
           notes: string | null
+          origin_request_id: string | null
           session_date: string
           starts_at: string
           status: string
@@ -801,6 +977,62 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "availability_slots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_tutor_request: {
+        Args: { p_course_id: string; p_note?: string; p_session_date: string }
+        Returns: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          guest_email: string | null
+          guest_manage_token: string | null
+          guest_name: string | null
+          id: string
+          note: string | null
+          requester_id: string | null
+          session_date: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutoring_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      create_tutor_request_as_guest: {
+        Args: {
+          p_course_id: string
+          p_email: string
+          p_name: string
+          p_note?: string
+          p_session_date: string
+        }
+        Returns: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          guest_email: string | null
+          guest_manage_token: string | null
+          guest_name: string | null
+          id: string
+          note: string | null
+          requester_id: string | null
+          session_date: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutoring_requests"
           isOneToOne: true
           isSetofReturn: false
         }
@@ -888,6 +1120,31 @@ export type Database = {
           tutor_name: string
         }[]
       }
+      get_public_requests: {
+        Args: never
+        Returns: {
+          claimable: boolean
+          course_name: string
+          id: string
+          session_date: string
+          status: string
+          subject_name: string
+          teacher_name: string
+        }[]
+      }
+      get_request_for_guest: {
+        Args: { p_request_id: string; p_token: string }
+        Returns: {
+          course_name: string
+          guest_name: string
+          id: string
+          note: string
+          session_date: string
+          status: string
+          teacher_name: string
+          tutor_name: string
+        }[]
+      }
       get_slot_attendees: {
         Args: { p_slot_id: string }
         Returns: {
@@ -934,6 +1191,20 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      mark_unclaimed_requests: { Args: never; Returns: number }
+      notify_course_tutors: {
+        Args: {
+          p_body: string
+          p_course_id: string
+          p_email_html: string
+          p_email_subject: string
+          p_exclude?: string
+          p_link: string
+          p_title: string
+          p_type: string
+        }
+        Returns: number
       }
       notify_guest_email: {
         Args: {
@@ -1033,6 +1304,7 @@ export type Database = {
           location_id: string
           max_capacity: number
           notes: string | null
+          origin_request_id: string | null
           session_date: string
           starts_at: string
           status: string
@@ -1044,6 +1316,31 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "availability_slots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      unclaim_request: {
+        Args: { p_request_id: string }
+        Returns: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          claimed_at: string | null
+          claimed_by: string | null
+          course_id: string
+          created_at: string
+          guest_email: string | null
+          guest_manage_token: string | null
+          guest_name: string | null
+          id: string
+          note: string | null
+          requester_id: string | null
+          session_date: string
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutoring_requests"
           isOneToOne: true
           isSetofReturn: false
         }

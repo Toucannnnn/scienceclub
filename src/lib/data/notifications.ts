@@ -11,7 +11,10 @@ export type NotificationType =
   | "account_approved"
   | "session_reminder"
   | "course_approved"
-  | "course_rejected";
+  | "course_rejected"
+  | "request_posted"
+  | "request_claimed"
+  | "request_unclaimed";
 
 export type AppNotification = {
   id: string;
