@@ -32,6 +32,28 @@ export function byStartsAtAsc(
   return new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime();
 }
 
+/** Sessions are always this half hour, so it's a constant, not a format. */
+export const SESSION_TIME_LABEL = "12:15 – 12:45 PM";
+
+/** Today's date in the club's timezone as YYYY-MM-DD, for date input `min`.
+ * Reads the clock, so it lives here rather than in a component body — the
+ * "components must be pure" lint rule flags impure calls inside anything it
+ * recognizes as a component. */
+export function clubToday() {
+  // en-CA gives ISO-shaped YYYY-MM-DD, which is what <input type="date"> wants.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Chicago",
+  }).format(new Date());
+}
+
+/** Parses a YYYY-MM-DD session date as *local midnight*. `new Date("2026-09-09")`
+ * parses as UTC midnight, which in Central is the evening of Sep 8 — every
+ * session would render a day early. Always use this for date-only strings. */
+export function parseSessionDate(ymd: string) {
+  const [year, month, day] = ymd.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 /** A sensible starting point for a new slot's start/end time — an hour from
  * now, one hour long. Kept out of any component body: reading the current
  * time is impure, and the "components must be pure" lint rule flags that

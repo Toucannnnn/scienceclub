@@ -35,36 +35,43 @@ export type SignupFormState =
     }
   | undefined;
 
+// Sessions are always 12:15–12:45 PM Central, so the only time input is the
+// date. The date itself is validated server-side (school day, teacher hosting,
+// not in the past) — those need the database, so there's no point duplicating
+// a weaker version of them here.
 export const CreateSlotFormSchema = z
   .object({
-    subjectId: z.string().trim().min(1).optional().or(z.literal("")),
-    locationId: z.string().trim().min(1, { error: "Choose a location." }),
-    startsAt: z.string().min(1, { error: "Choose a start time." }),
-    endsAt: z.string().min(1, { error: "Choose an end time." }),
-    maxCapacity: z.coerce
+    sessionDate: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, { error: "Choose a date." }),
+    courseId: z.uuid({ error: "Choose a course." }),
+    capacityMode: z.enum(["limited", "unlimited"], {
+      error: "Choose how many people can join.",
+    }),
+    capacity: z.coerce
       .number()
       .int()
       .min(1, { error: "Must be at least 1." })
-      .max(20, { error: "Keep it to 20 or fewer." }),
+      .max(100, { error: "Keep it to 100 or fewer." }),
+    helpMode: z.enum(["individual", "group"], {
+      error: "Choose individual or group help.",
+    }),
     notes: z.string().trim().max(500).optional().or(z.literal("")),
   })
-  .refine((data) => new Date(data.endsAt) > new Date(data.startsAt), {
-    error: "End time must be after the start time.",
-    path: ["endsAt"],
-  })
-  .refine((data) => new Date(data.startsAt) > new Date(), {
-    error: "Start time must be in the future.",
-    path: ["startsAt"],
-  });
+  // Capacity only has to be sensible when it's actually being used.
+  .refine(
+    (data) => data.capacityMode === "unlimited" || data.capacity >= 1,
+    { error: "Enter a number between 1 and 100.", path: ["capacity"] }
+  );
 
 export type CreateSlotFormState =
   | {
       errors?: {
-        subjectId?: string[];
-        locationId?: string[];
-        startsAt?: string[];
-        endsAt?: string[];
-        maxCapacity?: string[];
+        sessionDate?: string[];
+        courseId?: string[];
+        capacityMode?: string[];
+        capacity?: string[];
+        helpMode?: string[];
         notes?: string[];
       };
       message?: string;

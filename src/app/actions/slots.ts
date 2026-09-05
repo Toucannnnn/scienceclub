@@ -17,11 +17,11 @@ export async function createSlot(
   }
 
   const validatedFields = CreateSlotFormSchema.safeParse({
-    subjectId: formData.get("subjectId") ?? "",
-    locationId: formData.get("locationId"),
-    startsAt: formData.get("startsAt"),
-    endsAt: formData.get("endsAt"),
-    maxCapacity: formData.get("maxCapacity"),
+    sessionDate: formData.get("sessionDate"),
+    courseId: formData.get("courseId"),
+    capacityMode: formData.get("capacityMode"),
+    capacity: formData.get("capacity"),
+    helpMode: formData.get("helpMode"),
     notes: formData.get("notes") ?? "",
   });
 
@@ -29,23 +29,24 @@ export async function createSlot(
     return { errors: validatedFields.error.flatten().fieldErrors };
   }
 
-  const { subjectId, locationId, startsAt, endsAt, maxCapacity, notes } =
+  const { sessionDate, courseId, capacityMode, capacity, helpMode, notes } =
     validatedFields.data;
 
+  // create_slot owns every rule the client can't be trusted with: course
+  // approval, the teacher's hosting weekday, school closures, term bounds,
+  // and the one-slot-per-tutor-per-day constraint.
   const supabase = await createClient();
-  const { error } = await supabase.from("availability_slots").insert({
-    tutor_id: profile.id,
-    subject_id: subjectId || null,
-    location_id: locationId,
-    starts_at: new Date(startsAt).toISOString(),
-    ends_at: new Date(endsAt).toISOString(),
-    capacity: maxCapacity,
-    max_capacity: maxCapacity,
-    notes: notes || null,
+  const { error } = await supabase.rpc("create_slot", {
+    p_session_date: sessionDate,
+    p_course_id: courseId,
+    p_capacity_mode: capacityMode,
+    p_capacity: capacity,
+    p_help_mode: helpMode,
+    p_notes: notes || undefined,
   });
 
   if (error) {
-    return { message: "Could not create that slot. Please try again." };
+    return { message: friendlyRpcError(error.message) };
   }
 
   revalidatePath("/availability");

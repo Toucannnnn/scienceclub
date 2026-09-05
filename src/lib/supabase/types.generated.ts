@@ -42,12 +42,16 @@ export type Database = {
       availability_slots: {
         Row: {
           capacity: number
+          capacity_mode: string
+          course_id: string | null
           created_at: string
           ends_at: string
+          help_mode: string
           id: string
           location_id: string
           max_capacity: number
           notes: string | null
+          session_date: string
           starts_at: string
           status: string
           subject_id: string | null
@@ -58,12 +62,16 @@ export type Database = {
         }
         Insert: {
           capacity?: number
+          capacity_mode?: string
+          course_id?: string | null
           created_at?: string
           ends_at: string
+          help_mode: string
           id?: string
           location_id: string
           max_capacity?: number
           notes?: string | null
+          session_date: string
           starts_at: string
           status?: string
           subject_id?: string | null
@@ -73,12 +81,16 @@ export type Database = {
         }
         Update: {
           capacity?: number
+          capacity_mode?: string
+          course_id?: string | null
           created_at?: string
           ends_at?: string
+          help_mode?: string
           id?: string
           location_id?: string
           max_capacity?: number
           notes?: string | null
+          session_date?: string
           starts_at?: string
           status?: string
           subject_id?: string | null
@@ -87,6 +99,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "availability_slots_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "availability_slots_location_id_fkey"
             columns: ["location_id"]
@@ -465,6 +484,56 @@ export type Database = {
         }
         Relationships: []
       }
+      school_closures: {
+        Row: {
+          closure_date: string
+          created_at: string
+          created_by: string | null
+          label: string
+        }
+        Insert: {
+          closure_date: string
+          created_at?: string
+          created_by?: string | null
+          label: string
+        }
+        Update: {
+          closure_date?: string
+          created_at?: string
+          created_by?: string | null
+          label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_closures_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_terms: {
+        Row: {
+          ends_on: string
+          id: string
+          name: string
+          starts_on: string
+        }
+        Insert: {
+          ends_on: string
+          id?: string
+          name: string
+          starts_on: string
+        }
+        Update: {
+          ends_on?: string
+          id?: string
+          name?: string
+          starts_on?: string
+        }
+        Relationships: []
+      }
       subjects: {
         Row: {
           created_at: string
@@ -671,12 +740,57 @@ export type Database = {
         Args: { p_slot_id: string }
         Returns: {
           capacity: number
+          capacity_mode: string
+          course_id: string | null
           created_at: string
           ends_at: string
+          help_mode: string
           id: string
           location_id: string
           max_capacity: number
           notes: string | null
+          session_date: string
+          starts_at: string
+          status: string
+          subject_id: string | null
+          tutor_id: string
+          tutor_reminder_sent_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "availability_slots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      club_today: { Args: never; Returns: string }
+      club_tz: { Args: never; Returns: string }
+      course_hosts_on: {
+        Args: { p_course_id: string; p_date: string }
+        Returns: boolean
+      }
+      create_slot: {
+        Args: {
+          p_capacity: number
+          p_capacity_mode: string
+          p_course_id: string
+          p_help_mode: string
+          p_notes?: string
+          p_session_date: string
+        }
+        Returns: {
+          capacity: number
+          capacity_mode: string
+          course_id: string | null
+          created_at: string
+          ends_at: string
+          help_mode: string
+          id: string
+          location_id: string
+          max_capacity: number
+          notes: string | null
+          session_date: string
           starts_at: string
           status: string
           subject_id: string | null
@@ -738,12 +852,16 @@ export type Database = {
         Args: { p_slot_id: string }
         Returns: {
           capacity: number
+          capacity_mode: string
+          course_name: string
           ends_at: string
+          help_mode: string
           id: string
           location_name: string
           max_capacity: number
           notes: string
           reserved_count: number
+          session_date: string
           starts_at: string
           subject_name: string
           tutor_id: string
@@ -754,12 +872,16 @@ export type Database = {
         Args: never
         Returns: {
           capacity: number
+          capacity_mode: string
+          course_name: string
           ends_at: string
+          help_mode: string
           id: string
           location_name: string
           max_capacity: number
           notes: string
           reserved_count: number
+          session_date: string
           starts_at: string
           subject_name: string
           tutor_id: string
@@ -790,6 +912,7 @@ export type Database = {
       has_active_restriction: { Args: { p_user: string }; Returns: boolean }
       has_role: { Args: { p_role: string }; Returns: boolean }
       is_approved: { Args: never; Returns: boolean }
+      is_school_day: { Args: { p_date: string }; Returns: boolean }
       mark_all_notifications_read: { Args: never; Returns: number }
       mark_notification_read: {
         Args: { p_notification_id: string }
@@ -837,6 +960,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      request_cutoff_at: { Args: { p_date: string }; Returns: string }
       request_tutor_courses: {
         Args: { p_course_ids: string[] }
         Returns: number
@@ -893,16 +1017,23 @@ export type Database = {
           error: true
         } & "the function public.reserved_count with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
       }
+      session_ends_at: { Args: { p_date: string }; Returns: string }
+      session_label: { Args: { p_starts_at: string }; Returns: string }
+      session_starts_at: { Args: { p_date: string }; Returns: string }
       set_slot_capacity: {
         Args: { p_new_capacity: number; p_slot_id: string }
         Returns: {
           capacity: number
+          capacity_mode: string
+          course_id: string | null
           created_at: string
           ends_at: string
+          help_mode: string
           id: string
           location_id: string
           max_capacity: number
           notes: string | null
+          session_date: string
           starts_at: string
           status: string
           subject_id: string | null
