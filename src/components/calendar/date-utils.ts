@@ -55,7 +55,14 @@ export function isSameMonth(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
-/** Minutes since local midnight. */
-export function minutesInDay(date: Date) {
-  return date.getHours() * 60 + date.getMinutes();
+/**
+ * Parses a YYYY-MM-DD session date as **local midnight**.
+ *
+ * `new Date("2026-09-09")` is parsed as UTC midnight, which in Central time
+ * is the evening of Sep 8 — so every session would render one day early.
+ * Every date-only string in the calendar must come through here.
+ */
+export function parseSessionDate(ymd: string) {
+  const [year, month, day] = ymd.split("-").map(Number);
+  return new Date(year, month - 1, day);
 }

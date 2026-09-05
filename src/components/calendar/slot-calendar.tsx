@@ -12,7 +12,8 @@ import {
   startOfWeek,
 } from "./date-utils";
 import { formatRangeLabel } from "./formatters";
-import { HOUR_HEIGHT, TimeGrid } from "./time-grid";
+import { parseSessionDate } from "./date-utils";
+import { DayWeekGrid } from "./day-week-grid";
 import { MonthGrid } from "./month-grid";
 import { AgendaList } from "./agenda-list";
 
@@ -58,7 +59,7 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
     return (
       <div
         className="animate-pulse rounded-2xl border bg-card"
-        style={{ height: 12 * HOUR_HEIGHT }}
+        style={{ height: 420 }}
         aria-label="Loading calendar"
       />
     );
@@ -94,15 +95,16 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
 
   const parsedSlots: ParsedSlot[] = slots.map((slot) => ({
     ...slot,
-    start: new Date(slot.starts_at),
-    end: new Date(slot.ends_at),
+    // parseSessionDate, never `new Date(ymd)` — the latter is UTC midnight,
+    // which in Central is the evening before, shifting every session a day.
+    date: parseSessionDate(slot.session_date),
   }));
 
   const renderSlots = parsedSlots.filter(
-    (slot) => slot.start >= renderStart && slot.start < renderEnd
+    (slot) => slot.date >= renderStart && slot.date < renderEnd
   );
   const logicalCount = parsedSlots.filter(
-    (slot) => slot.start >= logicalStart && slot.start < logicalEnd
+    (slot) => slot.date >= logicalStart && slot.date < logicalEnd
   ).length;
 
   // Based on the logical range, so viewing October's grid while today (Sep 29)
@@ -203,7 +205,7 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
           {/* Day view's single column is legible on a phone, so it renders the
               real grid there; week view falls back to the agenda list. */}
           <div className={view === "day" ? "block" : "hidden md:block"}>
-            <TimeGrid days={days} slots={renderSlots} now={now} variant={view} />
+            <DayWeekGrid days={days} slots={renderSlots} now={now} variant={view} />
           </div>
           {view === "week" && (
             <div className="md:hidden">

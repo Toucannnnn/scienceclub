@@ -11,13 +11,19 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export type PublicOpenSlot = {
   id: string;
   tutor_id: string;
+  /** YYYY-MM-DD. The source of truth — every session is 12:15–12:45 Central,
+   * so starts_at/ends_at are derived and only needed for calendar links. */
+  session_date: string;
   starts_at: string;
   ends_at: string;
   capacity: number;
   max_capacity: number;
+  capacity_mode: "limited" | "unlimited";
+  help_mode: "individual" | "group";
   notes: string | null;
   tutor_name: string;
   subject_name: string | null;
+  course_name: string | null;
   location_name: string;
   reserved_count: number;
 };
@@ -27,13 +33,17 @@ function mapPublicSlotRow(row: any): PublicOpenSlot {
   return {
     id: row.id,
     tutor_id: row.tutor_id,
+    session_date: row.session_date,
     starts_at: row.starts_at,
     ends_at: row.ends_at,
     capacity: row.capacity,
     max_capacity: row.max_capacity,
+    capacity_mode: row.capacity_mode ?? "limited",
+    help_mode: row.help_mode ?? "group",
     notes: row.notes,
     tutor_name: row.tutor_name ?? "Unknown tutor",
     subject_name: row.subject_name,
+    course_name: row.course_name,
     location_name: row.location_name ?? "Unknown location",
     reserved_count: row.reserved_count ?? 0,
   };

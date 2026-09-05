@@ -1,12 +1,12 @@
 import Link from "next/link";
 import type { ParsedSlot } from "./types";
-import { TODAY_PILL } from "./types";
+import { TODAY_PILL, slotLabel } from "./types";
 import { addDays, isSameDay, isSameMonth, startOfMonth, startOfWeek } from "./date-utils";
-import { DAY_LABELS, formatChipTime, fullDayFormatter } from "./formatters";
+import { DAY_LABELS, fullDayFormatter } from "./formatters";
 
-// 12 default hours × 56px ÷ 6 rows — so the month grid is exactly as tall as
-// the default week grid and switching views doesn't jump the page.
-const MONTH_ROW_HEIGHT = 112;
+// Tall enough for the date plus three chips and an overflow line. min-h,
+// not a fixed height, so a busy day can grow instead of clipping.
+const MONTH_MIN_ROW_HEIGHT = 112;
 const CHIPS_PER_CELL = 3;
 // Always 6 rows: max leading offset (6) + longest month (31) = 37 ≤ 42, so
 // six rows always suffice, and a fixed count means no layout shift paging
@@ -44,9 +44,11 @@ export function MonthGrid({
 
         <div className="grid grid-cols-7">
           {cells.map((day) => {
+            // Same day, same time — order by course so the chips read
+            // consistently rather than by insertion order.
             const daySlots = slots
-              .filter((slot) => isSameDay(slot.start, day))
-              .sort((a, b) => a.start.getTime() - b.start.getTime());
+              .filter((slot) => isSameDay(slot.date, day))
+              .sort((a, b) => slotLabel(a).localeCompare(slotLabel(b)));
             const visible = daySlots.slice(0, CHIPS_PER_CELL);
             const overflow = daySlots.length - visible.length;
             const inMonth = isSameMonth(day, viewDate);
@@ -58,10 +60,10 @@ export function MonthGrid({
                 // is a button, and nesting interactive elements is invalid
                 // HTML and breaks keyboard navigation.
                 key={day.toISOString()}
-                className={`flex flex-col gap-0.5 overflow-hidden border-t border-l p-1 ${
+                className={`flex flex-col gap-0.5 border-t border-l p-1 ${
                   inMonth ? "" : "bg-muted/30"
                 }`}
-                style={{ height: MONTH_ROW_HEIGHT }}
+                style={{ minHeight: MONTH_MIN_ROW_HEIGHT }}
               >
                 <button
                   type="button"
@@ -81,11 +83,11 @@ export function MonthGrid({
                 </button>
 
                 {visible.map((slot) => {
-                  const label = `${formatChipTime(slot.start)} · ${
-                    slot.isOwn
-                      ? "Your slot"
-                      : (slot.subject_name ?? slot.tutor_name)
-                  }`;
+                  // Every session is at the same time now, so the time isn't
+                  // worth the ~90px a month cell has — the course is.
+                  const label = slot.isOwn
+                    ? `${slotLabel(slot)} (yours)`
+                    : slotLabel(slot);
                   return (
                     <Link
                       key={slot.id}
@@ -129,7 +131,7 @@ export function MonthGrid({
         </div>
         <div className="grid grid-cols-7">
           {cells.map((day) => {
-            const count = slots.filter((slot) => isSameDay(slot.start, day)).length;
+            const count = slots.filter((slot) => isSameDay(slot.date, day)).length;
             const inMonth = isSameMonth(day, viewDate);
             const isToday = isSameDay(day, now);
 

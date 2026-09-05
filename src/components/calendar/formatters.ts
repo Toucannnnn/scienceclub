@@ -8,9 +8,8 @@ export const timeFormatter = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
-export const hourFormatter = new Intl.DateTimeFormat("en-US", {
-  hour: "numeric",
-});
+/** Sessions are always this half hour — a constant, not a computed range. */
+export const SESSION_TIME_LABEL = "12:15 – 12:45 PM";
 
 export const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -29,14 +28,6 @@ export const monthYearFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-/** "3 PM" on the hour, "3:30 PM" otherwise — month chips have about 90px to
- * work with, so the ":00" is worth dropping. */
-export function formatChipTime(date: Date) {
-  return date.getMinutes() === 0
-    ? hourFormatter.format(date)
-    : timeFormatter.format(date);
-}
 
 /** The toolbar's range label, e.g. "September 2026" or "Sep 1 – Sep 7, 2026". */
 export function formatRangeLabel(view: CalendarView, viewDate: Date) {

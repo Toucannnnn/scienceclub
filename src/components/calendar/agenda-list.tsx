@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MapPinIcon } from "lucide-react";
 import type { ParsedSlot } from "./types";
-import { fullDayFormatter, timeFormatter } from "./formatters";
+import { fullDayFormatter, SESSION_TIME_LABEL } from "./formatters";
 import { isSameDay } from "./date-utils";
 
 /** The phone view for ranges wider than a day — a 7-column grid is unusable
@@ -23,20 +23,20 @@ export function AgendaList({
     );
   }
 
-  const sorted = [...slots].sort((a, b) => a.start.getTime() - b.start.getTime());
+  const sorted = [...slots].sort((a, b) => a.date.getTime() - b.date.getTime());
 
   return (
     <div className="flex flex-col gap-3">
       {sorted.map((slot, i) => {
         const spotsLeft = slot.capacity - slot.reserved_count;
         const startsNewDay =
-          showDayHeadings && (i === 0 || !isSameDay(sorted[i - 1].start, slot.start));
+          showDayHeadings && (i === 0 || !isSameDay(sorted[i - 1].date, slot.date));
 
         return (
           <div key={slot.id} className="flex flex-col gap-2">
             {startsNewDay && (
               <p className="px-1 text-xs font-medium text-muted-foreground">
-                {fullDayFormatter.format(slot.start)}
+                {fullDayFormatter.format(slot.date)}
               </p>
             )}
             <Link
@@ -44,7 +44,7 @@ export function AgendaList({
               className="rounded-2xl border bg-card p-4 transition-colors hover:bg-accent/40"
             >
               <p className="font-medium">
-                {timeFormatter.format(slot.start)} – {timeFormatter.format(slot.end)}
+                {SESSION_TIME_LABEL}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {slot.isOwn ? "Your slot" : slot.tutor_name}
