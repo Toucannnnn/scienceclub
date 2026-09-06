@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { formatRelativeTime } from "@/lib/format";
@@ -73,8 +72,14 @@ export function NotificationBell({
         }
       />
       <DropdownMenuContent align="end" className="w-80">
+        {/* A plain heading, not DropdownMenuLabel: that wraps Base UI's
+            Menu.GroupLabel, which throws unless it's inside a Menu.Group.
+            This is a panel heading sitting beside a button, not a label for
+            a group of menu items. */}
         <div className="flex items-center justify-between px-1.5 py-1">
-          <DropdownMenuLabel className="p-0">Notifications</DropdownMenuLabel>
+          <p className="text-xs font-medium text-muted-foreground">
+            Notifications
+          </p>
           {unreadCount > 0 && (
             <button
               type="button"
