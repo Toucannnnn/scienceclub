@@ -7,6 +7,7 @@ import { parseSessionDate, SESSION_TIME_LABEL } from "@/lib/format";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -33,9 +34,6 @@ export type PostableDay = {
   date: string;
   courseIds: string[];
 };
-
-const SELECT_CLASS =
-  "h-9 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-60";
 
 const dayOptionFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
@@ -196,13 +194,12 @@ export function NewSlotForm({
         <CardContent className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <Label htmlFor="sessionDate">Day</Label>
-            <select
+            <NativeSelect
               id="sessionDate"
               name="sessionDate"
               required
               value={sessionDate}
               onChange={(event) => handleDateChange(event.target.value)}
-              className={SELECT_CLASS}
             >
               <option value="" disabled>
                 Choose a day
@@ -216,7 +213,7 @@ export function NewSlotForm({
                   ))}
                 </optgroup>
               ))}
-            </select>
+            </NativeSelect>
             {state?.errors?.sessionDate && (
               <p className="text-sm text-destructive">
                 {state.errors.sessionDate[0]}
@@ -226,14 +223,13 @@ export function NewSlotForm({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="courseId">Course</Label>
-            <select
+            <NativeSelect
               id="courseId"
               name="courseId"
               required
               disabled={!sessionDate}
               value={courseId}
               onChange={(event) => setCourseId(event.target.value)}
-              className={SELECT_CLASS}
             >
               <option value="" disabled>
                 {sessionDate ? "Choose a course" : "Pick a day first"}
@@ -244,7 +240,7 @@ export function NewSlotForm({
                   {course.teacherName ? ` — ${course.teacherName}` : ""}
                 </option>
               ))}
-            </select>
+            </NativeSelect>
             <p className="text-xs text-muted-foreground">
               {sessionDate
                 ? `${availableCourses.length} of your ${courses.length} approved course${

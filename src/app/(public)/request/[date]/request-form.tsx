@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   createGuestRequestAction,
   createRequestAction,
@@ -9,10 +9,8 @@ import type { CourseOption } from "@/lib/data/calendar-days";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
-
-const SELECT_CLASS =
-  "h-9 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 /** The course picker and note, shared by both variants. Only courses whose
  * teacher hosts this date are listed, so the picker can't offer a combination
@@ -24,16 +22,20 @@ function SharedFields({
   courses: CourseOption[];
   error?: string;
 }) {
+  // Controlled so the field can tell "nothing picked yet" apart from a real
+  // choice and grey itself accordingly.
+  const [courseId, setCourseId] = useState("");
+
   return (
     <>
       <div className="flex flex-col gap-2">
         <Label htmlFor="courseId">What do you need help with?</Label>
-        <select
+        <NativeSelect
           id="courseId"
           name="courseId"
           required
-          defaultValue=""
-          className={SELECT_CLASS}
+          value={courseId}
+          onChange={(event) => setCourseId(event.target.value)}
         >
           <option value="" disabled>
             Choose a course
@@ -43,7 +45,7 @@ function SharedFields({
               {course.name} — {course.teacherName}
             </option>
           ))}
-        </select>
+        </NativeSelect>
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
 
