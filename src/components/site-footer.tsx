@@ -34,6 +34,9 @@ export function SiteFooter() {
             <Link href="/calendar" className="hover:text-foreground">
               Calendar
             </Link>
+            <Link href="/lookup" className="hover:text-foreground">
+              Find my bookings
+            </Link>
             <Link href="/signup" className="hover:text-foreground">
               Become a tutor
             </Link>

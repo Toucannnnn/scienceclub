@@ -139,6 +139,30 @@ export type Database = {
           },
         ]
       }
+      booking_lookup_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -850,6 +874,68 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_overview: {
+        Args: never
+        Returns: {
+          approved_hours: number
+          open_requests: number
+          pending_courses: number
+          pending_hours: number
+          pending_users: number
+          unclaimed_requests: number
+          upcoming_sessions: number
+        }[]
+      }
+      admin_requests: {
+        Args: { p_status?: string }
+        Returns: {
+          course_name: string
+          created_at: string
+          id: string
+          note: string
+          requester_email: string
+          requester_name: string
+          session_date: string
+          status: string
+          tutor_name: string
+        }[]
+      }
+      admin_sessions: {
+        Args: {
+          p_desc?: boolean
+          p_origin?: string
+          p_sort?: string
+          p_status?: string
+        }
+        Returns: {
+          booked: number
+          capacity: number
+          capacity_mode: string
+          course_name: string
+          from_request: boolean
+          help_mode: string
+          hours_status: string
+          id: string
+          location_name: string
+          session_date: string
+          status: string
+          tutor_name: string
+        }[]
+      }
+      admin_tutor_roster: {
+        Args: never
+        Returns: {
+          approved_courses: string[]
+          approved_hours: number
+          pending_courses: number
+          pending_hours: number
+          sessions_held: number
+          status: string
+          tutor_email: string
+          tutor_id: string
+          tutor_name: string
+        }[]
+      }
       assert_request_allowed: {
         Args: { p_course_id: string; p_date: string }
         Returns: undefined
@@ -1125,6 +1211,29 @@ export type Database = {
         }
       }
       enqueue_due_reminders: { Args: never; Returns: number }
+      get_bookings_by_email: {
+        Args: { p_email: string }
+        Returns: {
+          booked_at: string
+          course_name: string
+          location_name: string
+          session_date: string
+          status: string
+          tutor_name: string
+        }[]
+      }
+      get_bookings_by_lookup_token: {
+        Args: { p_token: string }
+        Returns: {
+          cancel_token: string
+          course_name: string
+          location_name: string
+          reservation_id: string
+          session_date: string
+          status: string
+          tutor_name: string
+        }[]
+      }
       get_guest_reservation: {
         Args: { p_reservation_id: string; p_token: string }
         Returns: {
@@ -1430,6 +1539,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      send_booking_lookup_link: {
+        Args: { p_email: string }
+        Returns: undefined
       }
       session_ends_at: { Args: { p_date: string }; Returns: string }
       session_label: { Args: { p_starts_at: string }; Returns: string }

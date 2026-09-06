@@ -42,7 +42,7 @@ export async function updateSession(request: NextRequest) {
   // The calendar and the booking flow under "/book" (per-slot booking, the
   // token-gated manage page) are deliberately reachable with no session —
   // browsing and booking never require an account. Everything else does.
-  const publicPrefixes = ["/calendar", "/book"];
+  const publicPrefixes = ["/calendar", "/book", "/lookup"];
   const isPublicPath =
     publicPaths.includes(path) ||
     publicPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
