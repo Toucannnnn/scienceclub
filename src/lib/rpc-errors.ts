@@ -47,6 +47,11 @@ export function friendlyRpcError(message: string): string {
     too_late_to_claim: "That request is too old to claim now.",
     too_late_to_cancel:
       "Tutors can only back out up to the day before — talk to an admin.",
+    no_recipients: "Pick at least one tutor to send it to.",
+    invalid_document: "That document is missing a file or a name.",
+    document_not_uploaded:
+      "The upload didn't finish — choose the PDF again and wait for it to say Ready.",
+    document_not_found: "That document has already been removed.",
     invalid_guest_details: "Please enter a valid name and email.",
     invalid_guest_link:
       "This booking link isn't valid — check you copied the whole link from your email.",

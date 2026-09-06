@@ -15,7 +15,8 @@ export type NotificationType =
   | "course_revoked"
   | "request_posted"
   | "request_claimed"
-  | "request_unclaimed";
+  | "request_unclaimed"
+  | "hour_document";
 
 export type AppNotification = {
   id: string;

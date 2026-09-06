@@ -3,6 +3,10 @@ import { DownloadIcon } from "lucide-react";
 import { requireApprovedProfile, hasRole } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { getMyHours } from "@/lib/data/hours";
+import {
+  getMyHourDocuments,
+  signHourDocuments,
+} from "@/lib/data/hour-documents";
 import { formatSessionDate } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -47,7 +51,11 @@ export default async function HoursPage() {
   }
 
   const supabase = await createClient();
-  const rows = await getMyHours(supabase);
+  const [rows, documents] = await Promise.all([
+    getMyHours(supabase),
+    getMyHourDocuments(supabase),
+  ]);
+  const signedDocuments = await signHourDocuments(supabase, documents);
 
   const approved = rows
     .filter((r) => r.status === "approved")
@@ -89,6 +97,53 @@ export default async function HoursPage() {
           </CardContent>
         </Card>
       </div>
+
+      {documents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Your paperwork</CardTitle>
+            <CardDescription>
+              Signed forms and letters an admin sent you. Download links expire
+              after a few minutes — come back here for a fresh one.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            {documents.map((document) => {
+              const url = signedDocuments.get(document.objectPath);
+              return (
+                <div
+                  key={document.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 px-3 py-2"
+                >
+                  <div>
+                    <p className="text-sm font-medium">{document.fileName}</p>
+                    {document.note && (
+                      <p className="text-xs text-muted-foreground">
+                        {document.note}
+                      </p>
+                    )}
+                  </div>
+                  {url ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                    >
+                      <DownloadIcon />
+                      Download
+                    </a>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      Link unavailable — ask an admin to resend it.
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

@@ -14,6 +14,7 @@ const SECTIONS = [
   { href: "/admin/requests", label: "Requests", group: "Tutoring" },
   { href: "/admin/sessions", label: "Sessions", group: "Tutoring" },
   { href: "/admin/hours", label: "Hours", group: "Hours" },
+  { href: "/admin/hours-documents", label: "Hours documents", group: "Hours" },
   { href: "/admin/closures", label: "School closures", group: "Setup" },
 ];
 

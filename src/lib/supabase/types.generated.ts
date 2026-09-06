@@ -268,6 +268,51 @@ export type Database = {
           },
         ]
       }
+      hour_documents: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          note: string | null
+          object_path: string
+          tutor_id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          note?: string | null
+          object_path: string
+          tutor_id: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          note?: string | null
+          object_path?: string
+          tutor_id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hour_documents_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hour_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           building: string | null
@@ -1244,6 +1289,24 @@ export type Database = {
           tutor_name: string
         }[]
       }
+      get_calendar_days: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          closure_label: string
+          day: string
+          is_open: boolean
+          teacher_names: string[]
+        }[]
+      }
+      get_courses_for_date: {
+        Args: { p_date: string }
+        Returns: {
+          course_id: string
+          course_name: string
+          subject_name: string
+          teacher_name: string
+        }[]
+      }
       get_guest_reservation: {
         Args: { p_reservation_id: string; p_token: string }
         Returns: {
@@ -1567,6 +1630,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      revoke_hour_document: {
+        Args: { p_document_id: string }
+        Returns: undefined
+      }
       revoke_tutor_course: {
         Args: { p_course_id: string; p_tutor_id: string }
         Returns: {
@@ -1587,6 +1654,15 @@ export type Database = {
       send_booking_lookup_link: {
         Args: { p_email: string }
         Returns: undefined
+      }
+      send_hour_document: {
+        Args: {
+          p_file_name: string
+          p_note?: string
+          p_object_path: string
+          p_tutor_ids: string[]
+        }
+        Returns: number
       }
       session_ends_at: { Args: { p_date: string }; Returns: string }
       session_label: { Args: { p_starts_at: string }; Returns: string }
