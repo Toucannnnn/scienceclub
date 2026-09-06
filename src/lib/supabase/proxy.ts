@@ -38,6 +38,20 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
+  // Route Handlers authenticate themselves and must never be bounced to an
+  // HTML login page — a cron scheduler or a guest with a token can't follow
+  // one. This was silently breaking the whole notification system: the cron
+  // dispatcher got a 307 to /login, so reminders never sent, the noon
+  // unclaimed sweep never ran, and email_outbox never drained.
+  //
+  // Each handler does its own check: /api/cron uses CRON_SECRET,
+  // /api/hours/export requires a session, /api/calendar/ics relies on RLS
+  // or a guest token.
+  if (path.startsWith("/api/")) {
+    return response;
+  }
+
   const publicPaths = ["/login", "/signup", "/"];
   // The calendar and the booking flow under "/book" (per-slot booking, the
   // token-gated manage page) are deliberately reachable with no session —

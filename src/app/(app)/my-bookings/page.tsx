@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getMyReservations } from "@/lib/data/slots";
 import { formatSlotTimeRange } from "@/lib/format";
 import { ActionButton } from "@/components/action-button";
+import { AddToCalendar } from "@/components/add-to-calendar";
 import { cancelReservationAction, setSlotCapacityAction } from "@/app/actions/slots";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -66,7 +67,17 @@ export default async function MyBookingsPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {isActive && (
+                    <AddToCalendar
+                      startsAt={r.starts_at}
+                      endsAt={r.ends_at}
+                      tutorName={r.tutor_name}
+                      courseName={r.subject_name}
+                      locationName={r.location_name}
+                      slotId={r.slot_id}
+                    />
+                  )}
                   {canManageCapacity && (
                     <ActionButton
                       action={setSlotCapacityAction}

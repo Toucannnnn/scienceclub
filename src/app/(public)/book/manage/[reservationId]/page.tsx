@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatSlotTimeRange } from "@/lib/format";
 import { ActionButton } from "@/components/action-button";
+import { AddToCalendar } from "@/components/add-to-calendar";
 import { cancelGuestReservationAction } from "@/app/actions/guest-bookings";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -84,14 +85,25 @@ export default async function GuestManageBookingPage({
           booking.
         </p>
         {isActive && (
-          <ActionButton
-            action={cancelGuestReservationAction}
-            fields={{ reservationId, token: token ?? "" }}
-            label="Cancel this booking"
-            pendingLabel="Cancelling..."
-            variant="outline"
-            confirmMessage="Cancel this booking?"
-          />
+          <>
+            <AddToCalendar
+              startsAt={reservation.starts_at}
+              endsAt={reservation.ends_at}
+              tutorName={reservation.tutor_name}
+              courseName={reservation.subject_name}
+              locationName={reservation.location_name}
+              reservationId={reservationId}
+              guestToken={token}
+            />
+            <ActionButton
+              action={cancelGuestReservationAction}
+              fields={{ reservationId, token: token ?? "" }}
+              label="Cancel this booking"
+              pendingLabel="Cancelling..."
+              variant="outline"
+              confirmMessage="Cancel this booking?"
+            />
+          </>
         )}
       </CardContent>
     </Card>
