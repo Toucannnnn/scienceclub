@@ -96,6 +96,31 @@ export async function getOwnSlots(
   return (data ?? []).map(mapSlotRow);
 }
 
+/**
+ * Dates from `fromDate` on where this tutor already has a live session.
+ *
+ * Mirrors uq_slot_active_per_tutor_date, the index behind
+ * `already_posted_that_day`: a tutor can't be in two rooms at 12:15, and only
+ * open/full slots hold the day — a cancelled one frees it up again. Used to
+ * keep those dates out of the post-a-session picker.
+ */
+export async function getPostedSessionDates(
+  supabase: SupabaseClient,
+  tutorId: string,
+  fromDate: string
+): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from("availability_slots")
+    .select("session_date")
+    .eq("tutor_id", tutorId)
+    .in("status", ["open", "full"])
+    .gte("session_date", fromDate);
+
+  if (error) throw error;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new Set((data ?? []).map((row: any) => row.session_date as string));
+}
+
 /** The current user's reservations (any status), most recent first. */
 export async function getMyReservations(
   supabase: SupabaseClient,
