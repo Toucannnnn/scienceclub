@@ -53,6 +53,52 @@ export async function withdrawTutorCourseAction(
   return { message: "Removed." };
 }
 
+/** Admin approves a course outright, with no request from the tutor. This is
+ * what makes club setup possible without chasing every tutor to log in. */
+export async function grantTutorCourseAction(
+  _state: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const profile = await requireApprovedProfile();
+  if (!hasRole(profile, "admin")) {
+    return { message: "You're not able to do that." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("grant_tutor_course", {
+    p_tutor_id: formData.get("tutorId") as string,
+    p_course_id: formData.get("courseId") as string,
+  });
+
+  if (error) return { message: friendlyRpcError(error.message) };
+
+  revalidatePath(`/admin/tutors/${formData.get("tutorId")}`);
+  revalidatePath("/admin/tutors");
+  return { message: "Approved." };
+}
+
+export async function revokeTutorCourseAction(
+  _state: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const profile = await requireApprovedProfile();
+  if (!hasRole(profile, "admin")) {
+    return { message: "You're not able to do that." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("revoke_tutor_course", {
+    p_tutor_id: formData.get("tutorId") as string,
+    p_course_id: formData.get("courseId") as string,
+  });
+
+  if (error) return { message: friendlyRpcError(error.message) };
+
+  revalidatePath(`/admin/tutors/${formData.get("tutorId")}`);
+  revalidatePath("/admin/tutors");
+  return { message: "Removed." };
+}
+
 export async function decideTutorCourseAction(
   _state: ActionState,
   formData: FormData

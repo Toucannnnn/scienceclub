@@ -23,7 +23,9 @@ export function friendlyRpcError(message: string): string {
       "Can't set capacity below the number of people already booked.",
     course_not_approved:
       "You're not approved to tutor that course yet — request approval first.",
-    not_a_tutor: "Only tutors can do that.",
+    not_a_tutor:
+      "That person doesn't have the tutor role yet — grant it from Manage users first.",
+    course_not_found: "That course no longer exists.",
     date_in_past: "That date has already passed.",
     not_a_school_day:
       "There's no school that day, so tutoring isn't running.",

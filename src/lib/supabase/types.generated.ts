@@ -874,6 +874,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_tutor_courses: {
+        Args: { p_tutor_id: string }
+        Returns: {
+          course_id: string
+          course_name: string
+          decided_at: string
+          status: string
+          subject_name: string
+        }[]
+      }
       admin_overview: {
         Args: never
         Returns: {
@@ -1378,6 +1388,23 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      grant_tutor_course: {
+        Args: { p_course_id: string; p_tutor_id: string }
+        Returns: {
+          course_id: string
+          decided_at: string | null
+          decided_by: string | null
+          requested_at: string
+          status: string
+          tutor_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutor_courses"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_active_restriction: { Args: { p_user: string }; Returns: boolean }
       has_role: { Args: { p_role: string }; Returns: boolean }
       is_approved: { Args: never; Returns: boolean }
@@ -1536,6 +1563,23 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "volunteer_hours"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      revoke_tutor_course: {
+        Args: { p_course_id: string; p_tutor_id: string }
+        Returns: {
+          course_id: string
+          decided_at: string | null
+          decided_by: string | null
+          requested_at: string
+          status: string
+          tutor_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "tutor_courses"
           isOneToOne: true
           isSetofReturn: false
         }

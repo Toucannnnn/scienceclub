@@ -1,6 +1,22 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export type TutorCourseStatus = "pending" | "approved" | "rejected";
+export type TutorCourseStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  /** An admin took the course back. Distinct from "rejected", which means a
+   * request was declined — a revoked tutor previously held it. */
+  | "revoked";
+
+/** Every active course with one tutor's standing against it; `status` is
+ * null for courses they've never been associated with. */
+export type TutorCourseStanding = {
+  courseId: string;
+  courseName: string;
+  subjectName: string;
+  status: TutorCourseStatus | null;
+  decidedAt: string | null;
+};
 
 export type Course = {
   id: string;
@@ -96,6 +112,27 @@ export async function getApprovedCourseNames(
   if (error) throw error;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data ?? []).map((row: any) => row.course?.name).filter(Boolean);
+}
+
+/** Admin view of one tutor's standing across every course, for the tutor
+ * detail screen. */
+export async function getTutorCourseStandings(
+  supabase: SupabaseClient,
+  tutorId: string
+): Promise<TutorCourseStanding[]> {
+  const { data, error } = await supabase.rpc("admin_get_tutor_courses", {
+    p_tutor_id: tutorId,
+  });
+  if (error) throw error;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    courseId: row.course_id,
+    courseName: row.course_name,
+    subjectName: row.subject_name,
+    status: row.status,
+    decidedAt: row.decided_at,
+  }));
 }
 
 /** Admin view of every outstanding course request. */

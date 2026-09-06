@@ -12,12 +12,16 @@ const STATUS_LABEL: Record<string, string> = {
   approved: "Approved",
   pending: "Pending review",
   rejected: "Declined",
+  // An admin took it back, as opposed to declining a request. Re-requesting
+  // is allowed and puts it back in their queue.
+  revoked: "Removed by an admin",
 };
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "outline"> = {
   approved: "default",
   pending: "secondary",
   rejected: "outline",
+  revoked: "outline",
 };
 
 export function CourseRequestForm({

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -69,7 +70,12 @@ export default async function AdminTutorsPage() {
                 {rows.map((row) => (
                   <TableRow key={row.tutor_id}>
                     <TableCell>
-                      <span className="font-medium">{row.tutor_name}</span>
+                      <Link
+                        href={`/admin/tutors/${row.tutor_id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {row.tutor_name}
+                      </Link>
                       <span className="block text-xs text-muted-foreground">
                         {row.tutor_email}
                       </span>

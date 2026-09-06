@@ -12,6 +12,7 @@ export type NotificationType =
   | "session_reminder"
   | "course_approved"
   | "course_rejected"
+  | "course_revoked"
   | "request_posted"
   | "request_claimed"
   | "request_unclaimed";
