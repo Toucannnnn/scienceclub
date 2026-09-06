@@ -61,7 +61,10 @@ export async function createRequestAction(
 
   revalidatePath("/my-bookings");
   revalidatePath("/calendar");
-  return { message: "Request posted — tutors have been notified." };
+  // Redirect rather than return a success message: this state is rendered as
+  // an error under the form, so a success string there would read as a
+  // failure. Tutee bookings is where the request now lives.
+  redirect("/my-bookings");
 }
 
 export async function claimRequestAction(

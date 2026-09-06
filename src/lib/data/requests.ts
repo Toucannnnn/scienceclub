@@ -41,6 +41,49 @@ export async function getPublicRequests(
   return (data ?? []) as PublicRequest[];
 }
 
+/** A signed-in tutee's own ticket, as shown on Tutee bookings. */
+export type MyRequest = {
+  id: string;
+  sessionDate: string;
+  courseName: string;
+  note: string | null;
+  status: RequestStatus;
+  tutorName: string | null;
+};
+
+/** The current user's own requests. RLS (tutoring_requests_select_own) does
+ * the filtering, but the explicit requester_id keeps a tutor's inbox rows —
+ * visible to them under a different policy — out of this list. */
+export async function getMyRequests(
+  supabase: SupabaseClient,
+  userId: string,
+  fromDate: string
+): Promise<MyRequest[]> {
+  const { data, error } = await supabase
+    .from("tutoring_requests")
+    .select(
+      `id, session_date, note, status,
+       course:courses(name),
+       tutor:profiles!tutoring_requests_claimed_by_fkey(full_name)`
+    )
+    .eq("requester_id", userId)
+    .gte("session_date", fromDate)
+    .neq("status", "cancelled")
+    .order("session_date", { ascending: true });
+
+  if (error) throw error;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    sessionDate: row.session_date,
+    courseName: row.course?.name ?? "Unknown course",
+    note: row.note,
+    status: row.status,
+    tutorName: row.tutor?.full_name ?? null,
+  }));
+}
+
 /**
  * Requests a tutor can see: RLS already limits this to courses they're
  * approved for, plus anything they claimed themselves.

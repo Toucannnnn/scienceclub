@@ -66,3 +66,16 @@ export function parseSessionDate(ymd: string) {
   const [year, month, day] = ymd.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
+
+/**
+ * The inverse of parseSessionDate: a Date back to YYYY-MM-DD in *local* time.
+ *
+ * `toISOString().slice(0, 10)` is the trap here — it converts to UTC first,
+ * so any time before 6pm Central reports the wrong day. Used to look a day up
+ * in the calendar-day map and to build /request/[date] links.
+ */
+export function toYmd(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}

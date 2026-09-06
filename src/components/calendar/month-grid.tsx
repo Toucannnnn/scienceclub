@@ -1,8 +1,17 @@
 import Link from "next/link";
-import type { ParsedSlot } from "./types";
+import type { CalendarDayMap } from "@/lib/data/calendar-days";
+import type { ParsedRequest, ParsedSlot } from "./types";
 import { TODAY_PILL, slotLabel } from "./types";
-import { addDays, isSameDay, isSameMonth, startOfMonth, startOfWeek } from "./date-utils";
+import {
+  addDays,
+  isSameDay,
+  isSameMonth,
+  startOfMonth,
+  startOfWeek,
+  toYmd,
+} from "./date-utils";
 import { DAY_LABELS, fullDayFormatter } from "./formatters";
+import { RequestChips, RequestDayAction, canRequestOn } from "./day-requests";
 
 // Tall enough for the date plus three chips and an overflow line. min-h,
 // not a fixed height, so a busy day can grow instead of clipping.
@@ -16,11 +25,15 @@ const MONTH_CELLS = 42;
 export function MonthGrid({
   viewDate,
   slots,
+  requests,
+  dayInfo,
   now,
   onSelectDay,
 }: {
   viewDate: Date;
   slots: ParsedSlot[];
+  requests: ParsedRequest[];
+  dayInfo: CalendarDayMap;
   now: Date;
   onSelectDay: (day: Date) => void;
 }) {
@@ -49,10 +62,12 @@ export function MonthGrid({
             const daySlots = slots
               .filter((slot) => isSameDay(slot.date, day))
               .sort((a, b) => slotLabel(a).localeCompare(slotLabel(b)));
+            const dayRequests = requests.filter((r) => isSameDay(r.date, day));
             const visible = daySlots.slice(0, CHIPS_PER_CELL);
             const overflow = daySlots.length - visible.length;
             const inMonth = isSameMonth(day, viewDate);
             const isToday = isSameDay(day, now);
+            const info = dayInfo[toYmd(day)];
 
             return (
               <div
@@ -110,6 +125,12 @@ export function MonthGrid({
                     +{overflow} more
                   </button>
                 )}
+
+                <RequestChips requests={dayRequests} compact />
+
+                {/* Safe to nest a link here — the cell itself is a plain div
+                    and only the date and "+N more" are buttons. */}
+                <RequestDayAction day={day} now={now} dayInfo={info} compact />
               </div>
             );
           })}
@@ -134,14 +155,22 @@ export function MonthGrid({
             const count = slots.filter((slot) => isSameDay(slot.date, day)).length;
             const inMonth = isSameMonth(day, viewDate);
             const isToday = isSameDay(day, now);
+            // Can't nest the request link inside this button, so the cell just
+            // signals that the day is open and routes into day view, which
+            // carries the real button.
+            const canRequest = canRequestOn(day, now, dayInfo[toYmd(day)]);
 
             return (
               <button
                 key={day.toISOString()}
                 type="button"
                 onClick={() => onSelectDay(day)}
-                aria-label={`${fullDayFormatter.format(day)}, ${count} open slot${count === 1 ? "" : "s"}`}
-                className="flex h-14 flex-col items-center justify-center gap-1 border-t"
+                aria-label={`${fullDayFormatter.format(day)}, ${count} open slot${count === 1 ? "" : "s"}${
+                  canRequest ? ", open for requests" : ""
+                }`}
+                className={`flex h-14 flex-col items-center justify-center gap-1 border-t ${
+                  canRequest && count === 0 ? "text-primary" : ""
+                }`}
               >
                 {isToday ? (
                   <span className={TODAY_PILL}>{day.getDate()}</span>

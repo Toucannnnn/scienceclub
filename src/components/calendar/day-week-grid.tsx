@@ -1,8 +1,10 @@
-import type { ParsedSlot } from "./types";
+import type { CalendarDayMap } from "@/lib/data/calendar-days";
+import type { ParsedRequest, ParsedSlot } from "./types";
 import { TODAY_PILL } from "./types";
-import { isSameDay } from "./date-utils";
+import { isSameDay, toYmd } from "./date-utils";
 import { DAY_LABELS, SESSION_TIME_LABEL } from "./formatters";
 import { SessionCard } from "./session-card";
+import { RequestChips, RequestDayAction } from "./day-requests";
 
 /**
  * Day and week views. Replaces the old hour-by-hour time grid: every session
@@ -15,11 +17,15 @@ import { SessionCard } from "./session-card";
 export function DayWeekGrid({
   days,
   slots,
+  requests,
+  dayInfo,
   now,
   variant,
 }: {
   days: Date[];
   slots: ParsedSlot[];
+  requests: ParsedRequest[];
+  dayInfo: CalendarDayMap;
   now: Date;
   variant: "day" | "week";
 }) {
@@ -33,6 +39,7 @@ export function DayWeekGrid({
       <div className={`grid ${columnsClass} border-b`}>
         {days.map((day) => {
           const isToday = isSameDay(day, now);
+          const info = dayInfo[toYmd(day)];
           return (
             <div
               key={day.toISOString()}
@@ -48,6 +55,13 @@ export function DayWeekGrid({
               >
                 {day.getDate()}
               </p>
+              {/* Who's holding a room that day, so a tutee knows where to go
+                  even if nobody claims their request. */}
+              {isDay && info?.isOpen && info.teacherNames.length > 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {info.teacherNames.join(" · ")}
+                </p>
+              )}
             </div>
           );
         })}
@@ -56,18 +70,20 @@ export function DayWeekGrid({
       <div className={`grid ${columnsClass}`}>
         {days.map((day) => {
           const daySlots = slots.filter((slot) => isSameDay(slot.date, day));
+          const dayRequests = requests.filter((r) => isSameDay(r.date, day));
+          const info = dayInfo[toYmd(day)];
           return (
             <div
               key={day.toISOString()}
               className="flex min-h-32 flex-col gap-1.5 border-l p-1.5 first:border-l-0"
             >
-              {daySlots.length === 0 ? (
+              {daySlots.length === 0 && dayRequests.length === 0 ? (
                 <p className="px-1 py-2 text-center text-[0.7rem] text-muted-foreground">
                   {isDay ? "Nothing posted for this day." : ""}
                 </p>
               ) : (
                 <>
-                  {isDay && (
+                  {isDay && daySlots.length > 0 && (
                     <p className="px-1 text-xs text-muted-foreground">
                       {SESSION_TIME_LABEL}
                     </p>
@@ -75,8 +91,18 @@ export function DayWeekGrid({
                   {daySlots.map((slot) => (
                     <SessionCard key={slot.id} slot={slot} detail={isDay} />
                   ))}
+                  <RequestChips requests={dayRequests} compact={!isDay} />
                 </>
               )}
+
+              {/* Outside the ternary on purpose: an empty day is exactly when
+                  a tutee most needs to ask for a tutor. */}
+              <RequestDayAction
+                day={day}
+                now={now}
+                dayInfo={info}
+                compact={!isDay}
+              />
             </div>
           );
         })}

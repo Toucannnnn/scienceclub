@@ -53,10 +53,12 @@ export async function updateSession(request: NextRequest) {
   }
 
   const publicPaths = ["/login", "/signup", "/"];
-  // The calendar and the booking flow under "/book" (per-slot booking, the
-  // token-gated manage page) are deliberately reachable with no session —
-  // browsing and booking never require an account. Everything else does.
-  const publicPrefixes = ["/calendar", "/book", "/lookup"];
+  // The calendar, the booking flow under "/book" (per-slot booking, the
+  // token-gated manage page) and the request flow under "/request" (asking for
+  // a tutor on a date, and the token-gated manage page migration 0011's emails
+  // link to) are deliberately reachable with no session — browsing, booking
+  // and asking never require an account. Everything else does.
+  const publicPrefixes = ["/calendar", "/book", "/lookup", "/request"];
   const isPublicPath =
     publicPaths.includes(path) ||
     publicPrefixes.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));

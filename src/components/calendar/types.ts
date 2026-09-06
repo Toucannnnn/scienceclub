@@ -23,6 +23,25 @@ export type ParsedSlot = CalendarSlot & {
   date: Date;
 };
 
+/** An open ticket from a tutee who wants a tutor on a given day. Shown next
+ * to the sessions for that day so a visitor sees both halves: what's already
+ * posted, and what someone has asked for. Deliberately carries no requester
+ * name — see PublicRequest in src/lib/data/requests.ts. */
+export type CalendarRequest = {
+  id: string;
+  session_date: string;
+  course_name: string;
+  subject_name: string;
+  teacher_name: string | null;
+  /** Only 'open' and 'unclaimed' ever reach the calendar. */
+  status: string;
+  claimable: boolean;
+};
+
+export type ParsedRequest = CalendarRequest & {
+  date: Date;
+};
+
 /** Shared so today's date reads identically everywhere it appears. */
 export const TODAY_PILL =
   "flex size-7 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground";

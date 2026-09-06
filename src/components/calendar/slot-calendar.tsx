@@ -3,7 +3,14 @@
 import { useState, useSyncExternalStore } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { CalendarSlot, CalendarView, ParsedSlot } from "./types";
+import type { CalendarDayMap } from "@/lib/data/calendar-days";
+import type {
+  CalendarRequest,
+  CalendarSlot,
+  CalendarView,
+  ParsedRequest,
+  ParsedSlot,
+} from "./types";
 import {
   addDays,
   addMonths,
@@ -40,7 +47,19 @@ function getServerMinuteSnapshot() {
   return 0;
 }
 
-export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
+export function SlotCalendar({
+  slots,
+  requests,
+  dayInfo,
+}: {
+  slots: CalendarSlot[];
+  /** Open tickets from tutees, shown alongside the posted sessions. */
+  requests: CalendarRequest[];
+  /** Openness and hosting teachers per YYYY-MM-DD, from get_calendar_days.
+   * Days outside the fetched window are simply absent, which reads as "not
+   * open" — correct, since tutoring only runs inside a school term. */
+  dayInfo: CalendarDayMap;
+}) {
   const minute = useSyncExternalStore(
     subscribeToMinute,
     getMinuteSnapshot,
@@ -100,8 +119,16 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
     date: parseSessionDate(slot.session_date),
   }));
 
+  const parsedRequests: ParsedRequest[] = requests.map((request) => ({
+    ...request,
+    date: parseSessionDate(request.session_date),
+  }));
+
   const renderSlots = parsedSlots.filter(
     (slot) => slot.date >= renderStart && slot.date < renderEnd
+  );
+  const renderRequests = parsedRequests.filter(
+    (request) => request.date >= renderStart && request.date < renderEnd
   );
   const logicalCount = parsedSlots.filter(
     (slot) => slot.date >= logicalStart && slot.date < logicalEnd
@@ -131,10 +158,20 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
       ? [logicalStart]
       : Array.from({ length: 7 }, (_, i) => addDays(logicalStart, i));
 
-  const countLabel =
+  const requestCount = parsedRequests.filter(
+    (request) => request.date >= logicalStart && request.date < logicalEnd
+  ).length;
+
+  const countLabel = [
     logicalCount === 0
       ? `No open slots this ${view}`
-      : `${logicalCount} open slot${logicalCount === 1 ? "" : "s"} this ${view}`;
+      : `${logicalCount} open slot${logicalCount === 1 ? "" : "s"} this ${view}`,
+    requestCount > 0
+      ? `${requestCount} tutee${requestCount === 1 ? "" : "s"} waiting for a tutor`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div className="flex flex-col gap-4">
@@ -197,6 +234,8 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
         <MonthGrid
           viewDate={viewDate}
           slots={renderSlots}
+          requests={renderRequests}
+          dayInfo={dayInfo}
           now={now}
           onSelectDay={openDay}
         />
@@ -205,14 +244,24 @@ export function SlotCalendar({ slots }: { slots: CalendarSlot[] }) {
           {/* Day view's single column is legible on a phone, so it renders the
               real grid there; week view falls back to the agenda list. */}
           <div className={view === "day" ? "block" : "hidden md:block"}>
-            <DayWeekGrid days={days} slots={renderSlots} now={now} variant={view} />
+            <DayWeekGrid
+              days={days}
+              slots={renderSlots}
+              requests={renderRequests}
+              dayInfo={dayInfo}
+              now={now}
+              variant={view}
+            />
           </div>
           {view === "week" && (
             <div className="md:hidden">
               <AgendaList
+                days={days}
                 slots={renderSlots}
-                emptyLabel="No open slots this week."
-                showDayHeadings
+                requests={renderRequests}
+                dayInfo={dayInfo}
+                now={now}
+                emptyLabel="Nothing this week — tutoring doesn't run on these days."
               />
             </div>
           )}
