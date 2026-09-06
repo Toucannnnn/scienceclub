@@ -775,6 +775,76 @@ export type Database = {
           },
         ]
       }
+      volunteer_hours: {
+        Row: {
+          created_at: string
+          hours: number
+          id: string
+          proof_object_path: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          session_date: string
+          slot_id: string
+          status: string
+          submitted_at: string
+          tutor_id: string
+          tutor_note: string | null
+        }
+        Insert: {
+          created_at?: string
+          hours?: number
+          id?: string
+          proof_object_path?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          session_date: string
+          slot_id: string
+          status?: string
+          submitted_at?: string
+          tutor_id: string
+          tutor_note?: string | null
+        }
+        Update: {
+          created_at?: string
+          hours?: number
+          id?: string
+          proof_object_path?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          session_date?: string
+          slot_id?: string
+          status?: string
+          submitted_at?: string
+          tutor_id?: string
+          tutor_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_hours_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_hours_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: true
+            referencedRelation: "availability_slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_hours_tutor_id_fkey"
+            columns: ["tutor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1068,6 +1138,39 @@ export type Database = {
           tutor_name: string
         }[]
       }
+      get_hours_for_review: {
+        Args: { p_status?: string }
+        Returns: {
+          course_name: string
+          hours: number
+          id: string
+          proof_object_path: string
+          review_note: string
+          reviewed_at: string
+          session_date: string
+          status: string
+          submitted_at: string
+          tutor_email: string
+          tutor_id: string
+          tutor_name: string
+          tutor_note: string
+        }[]
+      }
+      get_my_hours: {
+        Args: never
+        Returns: {
+          attendees: number
+          course_name: string
+          help_mode: string
+          hours: number
+          id: string
+          review_note: string
+          reviewed_at: string
+          session_date: string
+          status: string
+          submitted_at: string
+        }[]
+      }
       get_pending_tutor_courses: {
         Args: never
         Returns: {
@@ -1193,6 +1296,17 @@ export type Database = {
         }
       }
       mark_unclaimed_requests: { Args: never; Returns: number }
+      notify_admins: {
+        Args: {
+          p_body: string
+          p_email_html: string
+          p_email_subject: string
+          p_link: string
+          p_title: string
+          p_type: string
+        }
+        Returns: number
+      }
       notify_course_tutors: {
         Args: {
           p_body: string
@@ -1288,6 +1402,35 @@ export type Database = {
           error: true
         } & "the function public.reserved_count with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
       }
+      review_session_hours: {
+        Args: {
+          p_approve: boolean
+          p_hours?: number
+          p_hours_id: string
+          p_note?: string
+        }
+        Returns: {
+          created_at: string
+          hours: number
+          id: string
+          proof_object_path: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          session_date: string
+          slot_id: string
+          status: string
+          submitted_at: string
+          tutor_id: string
+          tutor_note: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "volunteer_hours"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       session_ends_at: { Args: { p_date: string }; Returns: string }
       session_label: { Args: { p_starts_at: string }; Returns: string }
       session_starts_at: { Args: { p_date: string }; Returns: string }
@@ -1316,6 +1459,30 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "availability_slots"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      submit_session_hours: {
+        Args: { p_note?: string; p_object_path?: string; p_slot_id: string }
+        Returns: {
+          created_at: string
+          hours: number
+          id: string
+          proof_object_path: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          session_date: string
+          slot_id: string
+          status: string
+          submitted_at: string
+          tutor_id: string
+          tutor_note: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "volunteer_hours"
           isOneToOne: true
           isSetofReturn: false
         }
